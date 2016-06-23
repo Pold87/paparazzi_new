@@ -196,7 +196,49 @@
     <field name="YprU3" 	type="float" 	unit="deg"/>
   </message>
 
-  <!--24 is free -->
+   <message name="TREXTON" id="24">
+    <field name="trexton_pos_x" type="int16" unit="cm"/>
+    <field name="trexton_pos_y" type="int16" unit="cm"/>
+    <field name="optitrack_pos_x" type="int16" unit="cm"/>
+    <field name="optitrack_pos_y" type="int16" unit="cm"/>
+    <field name="entropy" type="float"/>
+    <field name="uncertainty_x" type="float"/>
+    <field name="uncertainty_y" type="float"/>
+    <field name="t1" type="float"/>
+    <field name="t2" type="float"/>
+    <field name="t3" type="float"/>
+    <field name="t4" type="float"/>
+    <field name="t5" type="float"/>
+    <field name="t6" type="float"/>
+    <field name="t7" type="float"/>
+    <field name="t8" type="float"/>
+    <field name="t9" type="float"/>
+    <field name="t10" type="float"/>
+    <field name="t11" type="float"/>
+    <field name="t12" type="float"/>
+    <field name="t13" type="float"/>
+    <field name="t14" type="float"/>
+    <field name="t15" type="float"/>
+    <field name="t16" type="float"/>
+    <field name="t17" type="float"/>
+    <field name="t18" type="float"/>
+    <field name="t19" type="float"/>
+    <field name="t20" type="float"/>
+    <field name="t21" type="float"/>
+    <field name="t22" type="float"/>
+    <field name="t23" type="float"/>
+    <field name="t24" type="float"/>
+    <field name="t25" type="float"/>
+    <field name="t26" type="float"/>
+    <field name="t27" type="float"/>
+    <field name="t28" type="float"/>
+    <field name="t29" type="float"/>
+    <field name="t30" type="float"/>
+    <field name="t31" type="float"/>
+    <field name="t32" type="float"/>
+    <field name="t33" type="float"/>
+  </message>
+
 
   <message name="SVINFO" id="25">
     <field name="chn" type="uint8"/>
