@@ -20,7 +20,7 @@ static int max_lines;
 
 
 void cb_write_to_int_arr(void *s, size_t i, void *arr) {
-
+   i = i;
   /* Save in texton array */
   int* int_arr = (int*) arr;
   unsigned char *str = s;
@@ -33,7 +33,6 @@ void cb_write_to_int_arr(void *s, size_t i, void *arr) {
     acc += str[j] - '0';
  }
 
-  //  printf("row is: %d, col is: %d pos is %d num is: %d\n", row, col, row * width + col, acc);
   fflush(stdout);
   if (max_lines > 0)
     int_arr[row * width + col] = acc;
@@ -41,17 +40,16 @@ void cb_write_to_int_arr(void *s, size_t i, void *arr) {
 }
 
 void cb_write_to_double_arr(void *s, size_t i, void *arr) {
-
+   i = i;
   /* Save in texton array */
   double* double_arr = (double*) arr;
   if (max_lines > 0)
     double_arr[row * width + col] = strtof(s, NULL);
-  /* TODO use sprintf!!! */
   col++;
 }
 
 void cb_write_to_float_arr(void *s, size_t i, void *arr) {
-
+   i = i;
   /* Save in texton array */
   float* float_arr = (float*) arr;
   if (max_lines > 0)
@@ -62,7 +60,7 @@ void cb_write_to_float_arr(void *s, size_t i, void *arr) {
 
 
 void cb_write_to_position_arr(void *s, size_t i, void *arr) {
-
+   i = i;
   /* Skip header */
   if (row == 0)
     return;

@@ -1,0 +1,123 @@
+#if USE_CONVERSIONS
+
+      /* Create RGB image */
+      struct image_t rgb_img, opp_img, std_img;
+      image_create(&rgb_img, 320, 240, IMAGE_RGB);
+      image_create(&opp_img, 320, 240, IMAGE_OPPONENT);
+      image_create(&std_img, 320, 240, IMAGE_STD);
+      YUV422toRGB(img, &rgb_img);
+      double means[8];
+      RGBtoOpponent(&rgb_img, &opp_img, means);
+      image_grayscale_standardize(&opp_img, &std_img, means);
+      image_grayscale_standardize(img, &std_img, means);
+      printf("Means are %f, %f, %f %f\n", means[0], means[1], means[2], means[3]);
+
+      uint8_t *rgb_buf = (uint8_t *)rgb_img.buf;
+      uint8_t *opp_buf = (uint8_t *)opp_img.buf;
+      double *std_buf = (double *)std_img.buf;
+
+      printf("RGB: %d %d\n", rgb_buf[0], rgb_buf[1]);
+      printf("Opponent: %d %d %d %d\n", opp_buf[0], opp_buf[1], opp_buf[2], opp_buf[3]);
+      printf("STD: %f %f %f %f\n", std_buf[0], std_buf[1], std_buf[2], std_buf[3]);
+    #endif
+
+
+#if USE_CONVERSIONS
+  /* Free the image */
+  image_free(&rgb_img);
+  image_free(&opp_img);
+  image_free(&std_img);
+#endif
+
+
+  /* struct  measurement mean_pos; */
+  /* mean_pos.x = 0; */
+  /* mean_pos.y = 0; */
+  /* mean_pos.dist = 0; */
+
+  /* FILE *fp_knn; */
+  /* fp_knn = fopen("knn.csv", "a"); */
+
+  /* for (l = 0; l < k; l++) { */
+  /*   printf("\nmeasurement: x: %f, y: %f dist: %f num_histogram: %d\n", measurements[l].x, measurements[l].y, */
+  /*          measurements[l].dist, measurements[l].hist_num); */
+  /*   printf("\n\nnum_histogram: %d\n\n", measurements[l].hist_num); */
+  /*   fflush(stdout); */
+  /*   mean_pos.x += measurements[l].x / k; */
+  /*   mean_pos.y += measurements[l].y / k; */
+  /*   mean_pos.dist += measurements[l].dist / k; */
+
+  /*   fprintf(fp_knn, "%f,%f", measurements[l].x, measurements[l].y); */
+  /*   if (l != k - 1) */
+  /*     fprintf(fp_knn, ","); */
+  /* } */
+
+
+
+/* Initialize GPS settings  */
+void init_positions(void)
+{
+  //gps.fix = GPS_FIX_NONE;
+  /* gps.fix = GPS_FIX_3D; */
+  /* gps_available = TRUE; */
+  /* gps.gspeed = 700; // To enable course setting */
+  /* gps.cacc = 0; // To enable course setting */
+
+  /* // CyberZoo ref point is in: */
+  /* // https://github.com/tudelft/infinium_video/blob/volker/coordTransforms.py */
+  /* gps.ecef_pos.x = 392433249; */
+  /* gps.ecef_pos.y = 30036183; */
+  /* gps.ecef_pos.z = 500219779; */
+
+}
+
+
+static void send_trexton_position(struct transport_tx *trans, struct link_device *dev)
+ {
+   /* printf("global x is %d global y is %d\n", global_x, global_y); */
+   fflush(stdout);
+   struct NedCoor_i *ned = stateGetPositionNed_i();
+
+   /* For using Optitrack or the simulator */
+   /* pprz_msg_send_TREXTON(trans, dev, AC_ID, &global_x, &global_y, &ned->x, &ned->y, &entropy, &uncertainty_x, &uncertainty_y); */
+
+   int i;
+
+   /* For comparing ground truth to estimates */
+   pprz_msg_send_TREXTON(trans, dev, AC_ID, &global_x, &global_y,
+       &global_ground_truth_x, &global_ground_truth_y,
+       &entropy, &uncertainty_x, &uncertainty_y,
+       &texton_histogram[0],
+       &texton_histogram[1],
+       &texton_histogram[2],
+       &texton_histogram[3],
+       &texton_histogram[4],
+       &texton_histogram[5],
+       &texton_histogram[6],
+       &texton_histogram[7],
+       &texton_histogram[8],
+       &texton_histogram[9],
+       &texton_histogram[10],
+       &texton_histogram[11],
+       &texton_histogram[12],
+       &texton_histogram[13],
+       &texton_histogram[14],
+       &texton_histogram[15],
+       &texton_histogram[16],
+       &texton_histogram[17],
+       &texton_histogram[18],
+       &texton_histogram[19],
+       &texton_histogram[20],
+       &texton_histogram[21],
+       &texton_histogram[22],
+       &texton_histogram[23],
+       &texton_histogram[24],
+       &texton_histogram[25],
+       &texton_histogram[26],
+       &texton_histogram[27],
+       &texton_histogram[28],
+       &texton_histogram[29],
+       &texton_histogram[30],
+       &texton_histogram[31],
+       &texton_histogram[32]);
+ }

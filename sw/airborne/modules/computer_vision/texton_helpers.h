@@ -84,7 +84,7 @@ void make_histogram(uint8_t *texton_ids, float texton_hist[]);
 void save_histogram_int(int hist[], FILE *fp, int width);
 void save_histogram_double(double hist[], FILE *fp, int width);
 void save_histogram_float(float hist[], FILE *fp, int width);
-void save_histogram_both(double hist_color[], double hist_textons[], FILE *fp_all, int width_color, int width_textons);
+void save_histogram_both(double hist_color[], float hist_textons[], FILE *fp_all, int width_color, int width_textons);
 void concat_histograms(double color_hist[], double texton_histogram[], double both_hists[], int width_color, int width_textons);
 uint8_t label_image_patch(double *patch, double textons[][TOTAL_PATCH_SIZE], uint8_t channel);
 uint8_t predict_class(int *texton_hist);

@@ -30,6 +30,7 @@
 // Include opticflow calculator
 #include "opticflow/opticflow_calculator.h"
 
+
 // Needed for settings
 extern struct opticflow_t opticflow;
 

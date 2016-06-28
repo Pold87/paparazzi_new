@@ -26,6 +26,7 @@
 
 // Own header
 #include "video_thread.h"
+#include "image_conversions.h"
 #include "cv.h"
 #include <stdio.h>
 #include "readpng.h"
@@ -40,6 +41,8 @@ struct video_thread_t video_thread = {
 
 int j = 0;
 
+int use_yuv = 1;
+
 // All dummy functions
 void video_thread_init(void) {}
 void video_thread_periodic(void)
@@ -51,27 +54,26 @@ void video_thread_periodic(void)
     //int offset = 400;
     int offset = 0;
     //    int max_pic = 625;
-    int max_pic = 0;
+    //int max_pic = 0;
     /* TODO: use setting for 625 (amount of test pics) */
     i = offset + j;
+
     struct image_t img, yuv_img;
     image_create(&img, 640, 480, IMAGE_RGB);
     image_create(&yuv_img, 640, 480, IMAGE_YUV422);
-    printf("Image num: %d\n", i);
+
     char image_path[2048];
     sprintf(image_path, "%simg_%05d.png", image_folder, i);
     printf("Image path: %s\n", image_path);
     read_png_file(image_path, &img);
-    printf("Read file");
-    fflush(stdout);
-    printf("Converting");
-    fflush(stdout);
-    RGBtoYUV422(&img, &yuv_img);
-    printf("Converted");
-    fflush(stdout);
-    cv_run(&yuv_img);
-    printf("Before free");
-    fflush(stdout);
+
+    if (use_yuv) {
+       RGBtoYUV422(&img, &yuv_img);
+       cv_run(&yuv_img);
+    } else {
+       cv_run(&img);
+    }
+
     image_free(&img);
     image_free(&yuv_img);
     j++;

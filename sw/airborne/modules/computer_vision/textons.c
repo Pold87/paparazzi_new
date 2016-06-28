@@ -101,8 +101,7 @@ uint8_t n_textons = TEXTONS_N_TEXTONS;
 uint8_t patch_size = TEXTONS_PATCH_SIZE;
 uint32_t n_learning_samples = TEXTONS_N_LEARNING_SAMPLES;
 uint32_t n_samples_image = TEXTONS_N_SAMPLES;
-//uint8_t FULL_SAMPLING = TEXTONS_FULL_SAMPLING;
-uint8_t FULL_SAMPLING = 1;
+uint8_t FULL_SAMPLING = TEXTONS_FULL_SAMPLING;
 uint32_t border_width = TEXTONS_BORDER_WIDTH;
 uint32_t border_height = TEXTONS_BORDER_HEIGHT;
 uint8_t dictionary_number = TEXTONS_DICTIONARY_NUMBER;
@@ -117,13 +116,11 @@ static FILE *dictionary_logger = NULL;
 #ifndef DICTIONARY_PATH
 #define DICTIONARY_PATH /data/video/
 #endif
-
 /**
  * Main texton processing function that first either loads or learns a dictionary and then extracts the texton histogram.
  * @param[out] *img The output image
  * @param[in] *img The input image (YUV422)
  */
-struct image_t *texton_func(struct image_t *img);
 struct image_t *texton_func(struct image_t *img)
 {
 
@@ -489,9 +486,11 @@ void save_texton_dictionary(void)
 void load_texton_dictionary(void)
 {
   char filename[512];
+  #define DICTIONARY_PATH
   sprintf(filename, "%s/Dictionary_%05d.dat", STRINGIFY(DICTIONARY_PATH), dictionary_number);
 
   if ((dictionary_logger = fopen(filename, "r"))) {
+
     // Load the dictionary:
     for (int i = 0; i < n_textons; i++) {
       for (int j = 0; j < patch_size; j++) {

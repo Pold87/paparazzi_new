@@ -47,7 +47,6 @@ void init_particles(struct particle particles[N]){
 
       particles[i].w = 1;
       particles[i].prev_w = 1;
-      
       }
   }
 }
@@ -135,11 +134,6 @@ void resampling_wheel(struct particle ps[], struct particle res[], double weight
   double beta = 0.0;
   double mw = array_max(weights, samples);
   /* printf("MAX IS %f\n", mw); */
-  int j;
-  /* for (j = 0; j < samples; j++) { */
-  /*   printf("particle is: %f %f\n", ps[j].x, ps[j].y); */
-  /* } */
-
 
   int i;
   for (i = 0; i < N; i++) {
@@ -166,8 +160,8 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
   
   double w[N]; /* The weights of particles */
 
-  double process_noise_x = 100;
-  double process_noise_y = 100;
+  double process_noise_x = 20;
+  double process_noise_y = 20;
 
   double measurement_noise_x;
   double measurement_noise_y;
@@ -180,8 +174,8 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
   } else {
 
-    measurement_noise_x = 10;
-    measurement_noise_y = 10;
+    measurement_noise_x = 25;
+    measurement_noise_y = 25;
   }
 
 
@@ -189,8 +183,6 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
   int i = 0;
 
   for (i = 0; i < N; i++) {
-
-    /* printf("particle x pos %f", xs[i].x); */
 
     /* Process noise incorporates the movement of the UAV */
     /* According to p(x_t | x_(t-1)) */
@@ -221,29 +213,24 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
       int pred;
       double total_likelihood = 0.00000001;
 
-      double phi = 0.001;
-      double phis[num_predictions];
-      phis[0] = 1.0;
-      phis[1] = 0.3;
-      phis[2] = 0.1;
-      
-      
+      //double phis[num_predictions];
+      //phis[0] = 1.0;
+      /* phis[1] = 0.3; */
+      /* phis[2] = 0.1; */
       for (pred = 0; pred < num_predictions; pred++) {
 
 //	if (z[pred].x != -1) {
 
 	  /* double phi = 1.0 / ((double) num_predictions); */
-	  phi = phis[pred];
+    /* phi = phis[pred]; */
 
-	  
 	  /* TODO: instead of fixed measurement noise use confidence */
     p_x = normpdf(z[pred].x, xs[i].x, measurement_noise_x);
     p_y = normpdf(z[pred].y, xs[i].y, measurement_noise_y);
 
     //p_x = normpdf(xs[i].x, z[pred].x, z[pred].dist * 1400.0);
     //p_y = normpdf(xs[i].y, z[pred].y, z[pred].dist * 1400.0);
-	  
-	  
+
 	  /* total_likelihood += phi * p_x * p_y; */
 	  
 	  total_likelihood += p_x * p_y;
@@ -303,9 +290,6 @@ struct particle weighted_average(struct particle ps[], int size) {
 struct particle map_estimate(struct particle ps[], int size) {
 
   int i, j;
-  double total_weight = 0;
-  double x = 0;
-  double y = 0;
 
   int process_noise_x = 8;
   int process_noise_y = 8;
@@ -314,31 +298,25 @@ struct particle map_estimate(struct particle ps[], int size) {
   int t_argmax;
   t_max = -1.0;
   t_argmax = 0;
-  
-  struct particle p;
 
   /* See paper MAP Estimation in Particle Filter Tracking */
   for (i = 0; i < size; i++) {
 
     double s, a, b, t;
     s = 0;
-      
-      for (j = 0; j < size; j++) {
-	a = normpdf(ps[i].x, ps[j].prev_x, process_noise_x);
-	b = normpdf(ps[i].y, ps[j].prev_y, process_noise_y);
-	s += a * b * ps[j].prev_w;
-      }
+    for (j = 0; j < size; j++) {
+       a = normpdf(ps[i].x, ps[j].prev_x, process_noise_x);
+       b = normpdf(ps[i].y, ps[j].prev_y, process_noise_y);
+       s += a * b * ps[j].prev_w;
+    }
 
-      t = ps[i].w * s;
-
-      if (t > t_max) {
-	t_max = t;
-	t_argmax = i;
-      }
-
+    t = ps[i].w * s;
+    if (t > t_max) {
+       t_max = t;
+       t_argmax = i;
+    }
   }
 
-  printf("t_max is %f, argmax_t is %d", t_max, t_argmax);
   return ps[t_argmax];
 }
 
@@ -379,7 +357,7 @@ struct particle calc_uncertainty(struct particle ps[], struct particle weighted_
 
   printf("\nUncertainty in x (STD) is: %f\n", sqrt(p.x));
   printf("Uncertainty in y (STD) is: %f\n", sqrt(p.y));
-  
+
   return p;
 
 }

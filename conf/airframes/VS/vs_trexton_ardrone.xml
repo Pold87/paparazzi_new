@@ -5,12 +5,12 @@
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">
       <configure name="USE_BARO_BOARD" value="FALSE"/>
-    <subsystem name="gps" type="datalink"/>
+    <module name="gps" type="datalink"/>
     </target>
 
     <target name="nps" board="pc">
       <subsystem name="fdm" type="jsbsim"/>
-      <module name="gps" type="ublox"/>
+      <module name="gps" type="datalink"/>
     </target>
 
     <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
@@ -33,6 +33,14 @@
     <load name="geo_mag.xml"/>
     <load name="air_data.xml"/>
     <load name="send_imu_mag_current.xml"/>
+    <load name="cv_textons.xml">
+      <define name="LOAD_DICTIONARY" value="TRUE"/>
+      <define name="DICTIONARY_PATH" value="."/>
+      <define name="DICTIONARY_NUMBER" value="1"/>
+    </load>
+    <load name="trexton.xml">
+      <!-- <define name="TREXTON_CAMERA" value="bottom_camera"/> -->
+      </load>
     <load name="video_thread.xml">
       <define name="VIDEO_THREAD_FPS" value="4"/>
       <define name="VIDEO_THREAD_CAMERA" value="bottom_camera"/>
@@ -206,6 +214,25 @@
     <define name="IGAIN" value="30"/>
     <define name="VGAIN" value="0"/>
     <define name="AGAIN" value="0"/>
+  </section>
+
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_P" value="140" unit="deg/s"/>
+    <define name="SP_MAX_Q" value="140" unit="deg/s"/>
+    <define name="SP_MAX_R" value="140" unit="deg/s"/>
+    <define name="DEADBAND_P" value="20"/>
+    <define name="DEADBAND_Q" value="20"/>
+    <define name="DEADBAND_R" value="200"/>
+
+    <!-- feedback -->
+    <define name="GAIN_P" value="400"/>
+    <define name="GAIN_Q" value="400"/>
+    <define name="GAIN_R" value="350"/>
+
+    <define name="IGAIN_P" value="75"/>
+    <define name="IGAIN_Q" value="75"/>
+    <define name="IGAIN_R" value="50"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

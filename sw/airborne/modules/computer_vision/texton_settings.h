@@ -68,6 +68,7 @@ he GNU General Public License as published by
 #define NUM_TEST_HISTOGRAMS 625
 #define SAVE_HISTOGRAM true
 #define USE_WEBCAM true
+#define USE_FLOW false
 #define HISTOGRAM_PATH "saved.csv"
 #define USE_CONVERSIONS false
 #define TEXTON_STANDARIZE true
@@ -77,6 +78,7 @@ he GNU General Public License as published by
 #define USE_COLOR false
 #define USE_ALL false
 #define CHANNELS 1
+#define K 1
 
 #if USE_COLOR
   #define SIZE_HIST NUM_COLOR_BINS*COLOR_CHANNELS

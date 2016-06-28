@@ -64,6 +64,7 @@ void save_texton_dictionary(void);
 void load_texton_dictionary(void);
 
 // Module functions
+extern struct image_t *texton_func(struct image_t *img);
 extern void textons_init(void);
 extern void textons_stop(void);
 

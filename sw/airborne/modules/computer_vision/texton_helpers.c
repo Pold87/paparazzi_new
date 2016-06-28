@@ -558,7 +558,7 @@ void save_histogram_float(float hist[], FILE *fp, int width) {
 }
 
 
-void save_histogram_both(double hist_color[], double hist_textons[], FILE *fp_all, int width_color, int width_textons) {
+void save_histogram_both(double hist_color[], float hist_textons[], FILE *fp_all, int width_color, int width_textons) {
    if (!fp_all) {
     fprintf(stderr, "[treXton - save_histogram_both] Can't open file.\n");
    }

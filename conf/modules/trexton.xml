@@ -21,6 +21,7 @@
 
     <file name="trexton_regression.c"/>
     <file name="textons.c"/>
+    <file name="opticflow_module.c"/>
     <file name="texton_helpers.c"/>
     <file name="image_conversions.c"/>
 

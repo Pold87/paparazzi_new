@@ -65,7 +65,6 @@ void read_png_file(char *filename, struct image_t *img) {
     row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png,info));
   }
 
-  
   png_read_image(png, row_pointers);
 
   png_destroy_read_struct(&png, &info, NULL);
@@ -74,70 +73,39 @@ void read_png_file(char *filename, struct image_t *img) {
 
   int read_opponent = 0;
 
-
-
   if (read_opponent) {
-  /* Read as opponent color space  */
-      for(int y = 0; y < height; y++) {
-	png_bytep row = row_pointers[y];
+     /* Read as opponent color space  */
+     for(int y = 0; y < height; y++) {
+        png_bytep row = row_pointers[y];
 
-	for(int x = 0; x < width; x++) {
-	  png_bytep px = &(row[x * 4]);
+        for(int x = 0; x < width; x++) {
+           png_bytep px = &(row[x * 4]);
 
-	  /* Intensity, blue-yellow, green-red */
-	  int E, E_L, E_LL;
-	  E = 0.06 * px[0] + 0.63 * px[1] + 0.27 * px[2];
-	  E_L = 0.30 * px[0] + 0.04 * px[1] -0.35 * px[2];
-	  E_LL = 0.34 * px[0] - 0.60 * px[1] + 0.17 * px[2];
-	  ((uint8_t*) img->buf)[y * width + x] = (uint8_t) E;
-	}
-      } 
-    } else {
+           /* Intensity, blue-yellow, green-red */
+           int E;
+           //int E_L, E_LL;
+           E = 0.06 * px[0] + 0.63 * px[1] + 0.27 * px[2];
+           //E_L = 0.30 * px[0] + 0.04 * px[1] -0.35 * px[2];
+           //E_LL = 0.34 * px[0] - 0.60 * px[1] + 0.17 * px[2];
+           ((uint8_t*) img->buf)[y * width + x] = (uint8_t) E;
+        }
+     }
+  } else {
 
-      /* Read as RGB */
-    int rgb_pos = 0;
+     /* Read as RGB */
+     int rgb_pos = 0;
 
-      for(int y = 0; y < height; y++) {
-	/* printf("y: %d", y); */
-	fflush(stdout);
-	png_bytep row = row_pointers[y];
-	for(int x = 0; x < width; x++) {
-	  png_bytep px = &(row[x * 4]);
-	  /* printf("x: %d", x); */
-	  fflush(stdout);
-	  ((uint8_t*) img->buf)[rgb_pos++] = (uint8_t) px[0];
-	  ((uint8_t*) img->buf)[rgb_pos++] = (uint8_t) px[1];
-	  ((uint8_t*) img->buf)[rgb_pos++] = (uint8_t) px[2];
-
-	}
-      }
+     for(int y = 0; y < height; y++) {
+       fflush(stdout);
+       png_bytep row = row_pointers[y];
+       for(int x = 0; x < width; x++) {
+          png_bytep px = &(row[x * 4]);
+          ((uint8_t*) img->buf)[rgb_pos++] = (uint8_t) px[0];
+          ((uint8_t*) img->buf)[rgb_pos++] = (uint8_t) px[1];
+          ((uint8_t*) img->buf)[rgb_pos++] = (uint8_t) px[2];
+       }
+    }
   }
-
-  // Set the image
-  /* img->buf_idx = 0; */
 
   fclose(fp);
 }
-
-/* void write_to_file(struct image_t *img) { */
-
-
-/*   for(int y = 0; y < img->h; y++) { */
-/*     png_bytep row = row_pointers[y]; */
-/*     for(int x = 0; x < img->w; x++) { */
-/*       png_bytep px = &(row[x * 4]); */
-
-/*       int Y; */
-/*       Y = (6969 * px[0] + 23434 * px[1] + 2365 * px[2])/32768; */
-
-/*       fprintf(fp_out, "%d", Y); */
-/*       if (x != width -1) */
-/*   fprintf(fp_out, ","); */
-
-/*       // Do something awesome for each pixel here... */
-/*       //printf("%4d, %4d = RGBA(%3d, %3d, %3d, %3d)\n", x, y, px[0], px[1], px[2], px[3]); */
-/*     } */
-
-/*       fprintf(fp_out, "\n"); */
-/*   } */
-/* } */
