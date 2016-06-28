@@ -36,6 +36,11 @@
 <!-- If you place cv_colorfilter before your own module your own module will only get the filtered image-->
   <modules main_freq="512">
     <load name="geo_mag.xml"/>
+    <load name="cv_textons.xml">
+      <define name="LOAD_DICTIONARY" value="YES"/>
+      <define name="FULL_SAMPLING" value="YES"/>
+      <define name="DICTIONARY_PATH" value="."/>
+    </load>
     <load name="air_data.xml"/>
     <!-- <load name="cv_opencvdemo.xml"/> -->
     <load name="send_imu_mag_current.xml"/>

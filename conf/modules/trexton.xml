@@ -20,6 +20,7 @@
     <!-- <include name="modules/computer_vision"/> -->
 
     <file name="trexton_regression.c"/>
+    <file name="textons.c"/>
     <file name="texton_helpers.c"/>
     <file name="image_conversions.c"/>
 
@@ -30,6 +31,7 @@
 
     <file name="cv.c"/>
     <file name="readcsv.c"/>
+    <file name="readpng.c"/>
     <file name="libcsv.c"/>
     <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
     <define name="modules/computer_vision/lib/vision" type="include"/> 

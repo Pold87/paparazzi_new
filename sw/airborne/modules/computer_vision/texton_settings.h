@@ -55,20 +55,20 @@ he GNU General Public License as published by
 /* treXton settings */
 #define PATCH_SIZE  5
 #define TOTAL_PATCH_SIZE 25
-#define NUM_TEXTONS 48
+#define NUM_TEXTONS 20
 //#define NUM_TEXTONS 33
-#define MAX_TEXTONS 1000
+#define MAX_TEXTONS 5000
 #define MAX_POSSIBLE_DIST 50000
 
 /* Maximum lines read from histogram CSV */
-#define NUM_HISTOGRAMS 54
+#define NUM_HISTOGRAMS 625
 #define NUM_CLASSES 4
 #define PREDICT true
 #define EVALUATE true
 #define NUM_TEST_HISTOGRAMS 625
-#define SAVE_HISTOGRAM false
+#define SAVE_HISTOGRAM true
 #define USE_WEBCAM true
-#define HISTOGRAM_PATH "../treXton/saved.csv"
+#define HISTOGRAM_PATH "saved.csv"
 #define USE_CONVERSIONS false
 #define TEXTON_STANDARIZE true
 #define COLOR_CHANNELS 3
@@ -90,7 +90,6 @@ he GNU General Public License as published by
 /* static uint8_t patch_size = PATCH_SIZE; */
 /* static uint8_t total_patch_size = 25; //pow(patch_size, 2); */
 /* static int knn = 5; */
-
 
 
 #endif

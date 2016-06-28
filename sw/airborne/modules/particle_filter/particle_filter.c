@@ -162,12 +162,12 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 		     int use_variance, int use_flow, int num_predictions) {
 
 
-  printf("Dists are %f %f %f", z[0].dist, z[1].dist, z[2].dist);
+   //printf("Dists are %f %f %f", z[0].dist, z[1].dist, z[2].dist);
   
   double w[N]; /* The weights of particles */
 
-  double process_noise_x = 8;
-  double process_noise_y = 8;
+  double process_noise_x = 100;
+  double process_noise_y = 100;
 
   double measurement_noise_x;
   double measurement_noise_y;
@@ -180,8 +180,8 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
   } else {
 
-    measurement_noise_x = 70;
-    measurement_noise_y = 70;
+    measurement_noise_x = 10;
+    measurement_noise_y = 10;
   }
 
 
@@ -223,25 +223,25 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
       double phi = 0.001;
       double phis[num_predictions];
-      phis[0] = 0.6;
+      phis[0] = 1.0;
       phis[1] = 0.3;
       phis[2] = 0.1;
       
       
       for (pred = 0; pred < num_predictions; pred++) {
 
-	if (z[pred].x != -1) {
+//	if (z[pred].x != -1) {
 
 	  /* double phi = 1.0 / ((double) num_predictions); */
 	  phi = phis[pred];
 
 	  
 	  /* TODO: instead of fixed measurement noise use confidence */
-	  /* p_x = normpdf(z[pred].x, xs[i].x, measurement_noise_x); */
-	  /* p_y = normpdf(z[pred].y, xs[i].y, measurement_noise_y); */
+    p_x = normpdf(z[pred].x, xs[i].x, measurement_noise_x);
+    p_y = normpdf(z[pred].y, xs[i].y, measurement_noise_y);
 
-	  p_x = normpdf(xs[i].x, z[pred].x, z[pred].dist * 1400.0);
-	  p_y = normpdf(xs[i].y, z[pred].y, z[pred].dist * 1400.0);
+    //p_x = normpdf(xs[i].x, z[pred].x, z[pred].dist * 1400.0);
+    //p_y = normpdf(xs[i].y, z[pred].y, z[pred].dist * 1400.0);
 	  
 	  
 	  /* total_likelihood += phi * p_x * p_y; */
@@ -249,7 +249,7 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 	  total_likelihood += p_x * p_y;
 	  
 
-	}
+//	}
       }
 
       xs[i].prev_w = xs[i].w;
@@ -307,8 +307,8 @@ struct particle map_estimate(struct particle ps[], int size) {
   double x = 0;
   double y = 0;
 
-  int process_noise_x = 50;
-  int process_noise_y = 50;
+  int process_noise_x = 8;
+  int process_noise_y = 8;
 
   double t_max;
   int t_argmax;

@@ -12,6 +12,7 @@
 #include "lib/encoding/rtp.h"
 #include "udp_socket.h"
 #include "modules/computer_vision/cv.h"
+#include "modules/computer_vision/textons.h"
 
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
@@ -25,7 +26,7 @@
 #include "state.h"
 
 /* Histogram paths */
-static char histogram_filename[] = "mat_train_hists_texton.csv";
+static char histogram_filename[] = "/home/pold/paparazzi_clean2/mat_train_hists_texton.csv";
 /* static char histogram_filename_testset[] = "mat_test_hists_str8.csv"; */
 /* static) char position_filename[] =  "board_train_pos.csv"; */
 static char position_filename[] =  "cyberzoo_pos_optitrack.csv";
@@ -53,7 +54,7 @@ static bool opticflow_got_result; ///< When we have an optical flow calculation
 
 static struct UdpSocket video_sock; /* UDP socket for sending RTP video */
 
-static int image_num = 400;
+static int image_num = 0;
 
 /* The trexton camera V4L2 device */
 static struct v4l2_device *trexton_dev;
@@ -66,7 +67,7 @@ static char *texton_filename = "textons_malik.csv";
 /* Array with the textons */
 double textons[NUM_TEXTONS * CHANNELS][TOTAL_PATCH_SIZE];
 
-static int k = 3; /* Number of nearest neighbors for kNN */
+static int k = 1; /* Number of nearest neighbors for kNN */
 
 /* Uncertainty measurements */
 static float entropy = 0;
@@ -94,7 +95,7 @@ int closest = 2000;
 void trexton_init(void)
 {
 
-   //register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_TREXTON, send_trexton_position);
+  //register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_TREXTON, send_trexton_position);
 
   /* Print current working directory */
    char cwd[1024];
@@ -113,6 +114,7 @@ void trexton_init(void)
   remove("particle_filter_preds.csv");
   remove("edgeflow_diff.csv");
   remove("knn.csv");
+  remove("saved.csv");
 
   // Set the opticflow state to 0
   opticflow_state.phi = 0;
@@ -156,7 +158,7 @@ void trexton_init(void)
   remove("predictions.csv");
   FILE *fp_predictions;
   fp_predictions = fopen("predictions.csv", "a");
-  fprintf(fp_predictions, "id,x,y,dist\n");
+  //fprintf(fp_predictions, "id,x,y,dist\n");
   fclose(fp_predictions);
 
 #endif
@@ -180,6 +182,12 @@ struct image_t* trexton_func(struct image_t* img) {
 
   printf("Starting to fly");
   printf("Type of in IMAGE  is %d\n", img->type);
+
+  int u;
+  for (u = 0; u < 20; u++) {
+     printf("textons: %f ", texton_distribution[u]);
+  }
+
 
   #if MEASURE_TIME
     /* clock_t start = clock(); */;
@@ -226,7 +234,7 @@ struct image_t* trexton_func(struct image_t* img) {
   gettimeofday(&t0, 0);
 #endif
 
-  get_texton_histogram(img, texton_histogram, textons);
+  //get_texton_histogram(img, texton_histogram, textons);
 
   #if USE_COLOR
     double color_hist[COLOR_CHANNELS*NUM_COLOR_BINS] = {0.0};
@@ -269,9 +277,12 @@ struct image_t* trexton_func(struct image_t* img) {
 #endif
 
 
-/* #if SAVE_HISTOGRAM */
-/*   save_histogram(texton_histogram, HISTOGRAM_PATH); */
-/* #elif PREDICT */
+#if SAVE_HISTOGRAM
+  FILE *fp_hist;
+  fp_hist = fopen("saved.csv", "a");
+  save_histogram_float(texton_distribution, fp_hist, NUM_TEXTONS);
+  fclose(fp_hist);
+#endif
 #if PREDICT
 
 #if MEASURE_TIME
@@ -308,7 +319,7 @@ struct image_t* trexton_func(struct image_t* img) {
   predict_position(pos, color_hist, COLOR_CHANNELS * NUM_COLOR_BINS);
   #else
   /* For textons */
-  predict_position(pos, texton_histogram, NUM_TEXTONS * CHANNELS);
+  predict_position(pos, texton_distribution, NUM_TEXTONS * CHANNELS);
   #endif
 
  
@@ -389,6 +400,7 @@ struct image_t* trexton_func(struct image_t* img) {
   uncertainty_y = var.y;
   
   struct particle p_forward = map_estimate(particles, N);
+  //struct particle p_forward = weighted_average(particles, N);
   /* printf("\nRaw: %f,%f\n", pos.x, pos.y); */
   printf("Particle filter: %f,%f\n", p_forward.x, p_forward.y);
 
@@ -397,7 +409,7 @@ struct image_t* trexton_func(struct image_t* img) {
 
   global_ground_truth_x = all_test_positions[image_num].x;
   global_ground_truth_y = all_test_positions[image_num].y;
- 
+
   FILE *fp_predictions;
   FILE *fp_particle_filter;
   FILE *fp_edge;
@@ -406,7 +418,7 @@ struct image_t* trexton_func(struct image_t* img) {
   fp_edge = fopen("edgeflow_diff.csv", "a");
   fprintf(fp_edge, "%f,%f\n", flow.x, flow.y);
   fprintf(fp_particle_filter, "%f,%f\n", p_forward.x, p_forward.y);
-  //fprintf(fp_predictions, "%d,%f,%f,%f\n", current_test_histogram, pos.x, pos.y, pos.dist);
+  fprintf(fp_predictions, "%f,%f\n", pos[0].x, pos[0].y);
   fclose(fp_predictions);
   fclose(fp_particle_filter);
   fclose(fp_edge);

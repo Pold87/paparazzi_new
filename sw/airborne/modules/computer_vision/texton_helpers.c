@@ -368,13 +368,19 @@ void get_texton_histogram(struct image_t *img, float texton_histogram[], double 
     uint8_t texton_id;
 
     /* Set random seed */
-    srand (time(NULL));
+    //srand (time(NULL));
+    srand(42);
+
     
     /* Extract image patches */
+
+      FILE *fp_xy;
+      fp_xy = fopen("xy_pos.csv", "w");
+
     int i;
     for (i = 0; i < MAX_TEXTONS; i++) {
 
-      /* Extract random locations of patchsize x patchsize */
+       /* Extract random locations of patchsize x patchsize */
       int max_x = img->w - PATCH_SIZE;
       int max_y = img->h - PATCH_SIZE;
 
@@ -385,9 +391,12 @@ void get_texton_histogram(struct image_t *img, float texton_histogram[], double 
       int x = rand_x % max_x;
       int y = rand_y % max_y;
 
+      // Print coords of x y positions to file
+      fprintf(fp_xy, "%d,%d\n", x, y);
+
       int channel;
       for (channel = 0; channel < CHANNELS; channel++) {
-	extract_one_patch(img, patch, x, y, PATCH_SIZE, channel);
+         extract_one_patch(img, patch, x, y, PATCH_SIZE, channel);
 
 	/* int u; */
 	/* printf("patch is"); */
@@ -405,6 +414,8 @@ void get_texton_histogram(struct image_t *img, float texton_histogram[], double 
       }
 
     }
+
+    fclose(fp_xy);
 
     /* Build the histogram of textons from the texton ID array */
     make_histogram(texton_ids, texton_histogram);
