@@ -4,10 +4,17 @@
   <doc>
     <description>treXton localization</description>
     <define name="TREXTON_CAMERA" value="bottom_camera"/>
+
+    <section name="TREXTON" prefix="TREXTON_">
+      <define name="K" value="1" description="Number of nearest neighbors for kNN"/>
+      <define name="USE_FLOW" value="FALSE" description="Use optical flow for updating of particle filter"/>
+      <define name="PREDICT" value="TRUE" description="Predict positions using kNN or just extract histograms"/>
+    </section>
+
+
   </doc>
 
-  <!-- <depends>video_thread</depends> -->
-  
+
   <header>
     <file name="trexton_regression.h"/>
   </header>

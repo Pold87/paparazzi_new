@@ -39,7 +39,7 @@ struct video_thread_t video_thread = {
   .shot_number = 0
 };
 
-int j = 0;
+int i = 400;
 
 int use_yuv = 1;
 
@@ -50,13 +50,6 @@ void video_thread_periodic(void)
 
   /* TODO: use setting variable here */
   char image_folder[] = "/home/pold/from_bebop/png/";
-    int i = 0;
-    //int offset = 400;
-    int offset = 0;
-    //    int max_pic = 625;
-    //int max_pic = 0;
-    /* TODO: use setting for 625 (amount of test pics) */
-    i = offset + j;
 
     struct image_t img, yuv_img;
     image_create(&img, 640, 480, IMAGE_RGB);
@@ -76,8 +69,7 @@ void video_thread_periodic(void)
 
     image_free(&img);
     image_free(&yuv_img);
-    j++;
-      //j = j % (1 + offset - max_pic);
+    i++;
 }
 
 void video_thread_start(void) {}

@@ -91,6 +91,7 @@ void cb_write_to_position_arr(void *s, size_t i, void *arr) {
 
 void cb_end_of_line(int c, void *outfile) {
 
+   c = c;
   /* Set row and column counter */
   max_lines--;
   col = 0;
@@ -137,12 +138,12 @@ uint8_t read_csv_into_array(void *array, char *filename, void (*cb)(void *, size
 }
 
 
-uint8_t read_textons_from_csv(double textons[][TOTAL_PATCH_SIZE], char *filename) {
+uint8_t read_textons_from_csv(double textons[][TREXTON_TOTAL_PATCH_SIZE], char *filename) {
   
   printf("\n%s\n", filename);
   fflush(stdout); // Prints to screen or whatever your standard out is
-  max_lines = NUM_TEXTONS * CHANNELS;
-  width = TOTAL_PATCH_SIZE;
+  max_lines = TREXTON_NUM_TEXTONS * TREXTON_CHANNELS;
+  width = TREXTON_TOTAL_PATCH_SIZE;
   uint8_t r = read_csv_into_array(textons, filename, cb_write_to_double_arr);
   
   return r;
@@ -150,11 +151,11 @@ uint8_t read_textons_from_csv(double textons[][TOTAL_PATCH_SIZE], char *filename
 
 }
 
-uint8_t read_histograms_from_csv(float histograms[][SIZE_HIST], char *filename, int used_width) {
+uint8_t read_histograms_from_csv(float histograms[][TREXTON_SIZE_HIST], char *filename, int used_width) {
    
   printf("\n%s\n", filename);
   fflush(stdout); // Prints to screen or whatever your standard out is
-  max_lines = NUM_HISTOGRAMS;
+  max_lines = TREXTON_NUM_HISTOGRAMS;
   width = used_width;
   uint8_t r = read_csv_into_array(histograms, filename, cb_write_to_float_arr);
 
@@ -168,7 +169,7 @@ uint8_t read_color_histograms_from_csv(double *histograms, char *filename, int u
    
   printf("\n%s\n", filename);
   fflush(stdout); // Prints to screen or whatever your standard out is
-  max_lines = NUM_HISTOGRAMS;
+  max_lines = TREXTON_NUM_HISTOGRAMS;
   width = used_width;
   uint8_t r = read_csv_into_array(histograms, filename, cb_write_to_double_arr);
 
@@ -181,8 +182,8 @@ uint8_t read_test_histograms_from_csv(int *histograms, char *filename) {
    
   printf("\n%s\n", filename);
   fflush(stdout); // Prints to screen or whatever your standard out is
-  max_lines = NUM_TEST_HISTOGRAMS;
-  width = NUM_TEXTONS * CHANNELS;
+  max_lines = TREXTON_NUM_TEST_HISTOGRAMS;
+  width = TREXTON_NUM_TEXTONS * TREXTON_CHANNELS;
   uint8_t r = read_csv_into_array(histograms, filename, cb_write_to_int_arr);
 
   return r;
@@ -195,7 +196,7 @@ uint8_t read_test_histograms_from_csv(int *histograms, char *filename) {
   printf("[read_positions_from_csv] filename is \n%s\n", filename);
   fflush(stdout); 
 
-  max_lines = NUM_HISTOGRAMS;
+  max_lines = TREXTON_NUM_HISTOGRAMS;
   width = 4; /* CSV header is id, x, y, matches */
   uint8_t r = read_csv_into_array(measurements, filename, cb_write_to_position_arr);
 
@@ -215,7 +216,7 @@ uint8_t read_test_histograms_from_csv(int *histograms, char *filename) {
   printf("[read_positions_from_csv] filename is \n%s\n", filename);
   fflush(stdout); 
 
-  max_lines = NUM_TEST_HISTOGRAMS;
+  max_lines = TREXTON_NUM_TEST_HISTOGRAMS;
   width = 4; /* CSV header is id, x, y, matches */
   uint8_t r = read_csv_into_array(measurements, filename, cb_write_to_position_arr);
 
@@ -235,7 +236,7 @@ uint8_t read_weights_from_csv(double *weights, char *filename) {
    
   printf("\n%s\n", filename);
   fflush(stdout); // Prints to screen or whatever your standard out is
-  max_lines = NUM_TEXTONS * CHANNELS;
+  max_lines = TREXTON_NUM_TEXTONS * TREXTON_CHANNELS;
   width = 1;
   uint8_t r = read_csv_into_array(weights, filename, cb_write_to_double_arr);
 

@@ -155,9 +155,6 @@ void resampling_wheel(struct particle ps[], struct particle res[], double weight
 void particle_filter(struct particle xs[N], struct measurement z[], struct measurement *flow,
 		     int use_variance, int use_flow, int num_predictions) {
 
-
-   //printf("Dists are %f %f %f", z[0].dist, z[1].dist, z[2].dist);
-  
   double w[N]; /* The weights of particles */
 
   double process_noise_x = 20;
@@ -231,12 +228,8 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
     //p_x = normpdf(xs[i].x, z[pred].x, z[pred].dist * 1400.0);
     //p_y = normpdf(xs[i].y, z[pred].y, z[pred].dist * 1400.0);
 
-	  /* total_likelihood += phi * p_x * p_y; */
-	  
-	  total_likelihood += p_x * p_y;
-	  
+    /* total_likelihood += phi * p_x * p_y; */
 
-//	}
       }
 
       xs[i].prev_w = xs[i].w;

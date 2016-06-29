@@ -113,8 +113,8 @@ float alpha = 0.0;
 
 // File pointer for saving the dictionary
 static FILE *dictionary_logger = NULL;
-#ifndef DICTIONARY_PATH
-#define DICTIONARY_PATH /data/video/
+#ifndef TEXTONS_DICTIONARY_PATH
+#define TEXTONS_DICTIONARY_PATH /data/video/
 #endif
 /**
  * Main texton processing function that first either loads or learns a dictionary and then extracts the texton histogram.
@@ -459,7 +459,7 @@ void save_texton_dictionary(void)
   char filename[512];
 
   // Check for available files
-  sprintf(filename, "%s/Dictionary_%05d.dat", STRINGIFY(DICTIONARY_PATH), dictionary_number);
+  sprintf(filename, "%s/Dictionary_%05d.dat", STRINGIFY(TEXTONS_DICTIONARY_PATH), dictionary_number);
 
   dictionary_logger = fopen(filename, "w");
 
@@ -486,8 +486,7 @@ void save_texton_dictionary(void)
 void load_texton_dictionary(void)
 {
   char filename[512];
-  #define DICTIONARY_PATH
-  sprintf(filename, "%s/Dictionary_%05d.dat", STRINGIFY(DICTIONARY_PATH), dictionary_number);
+  sprintf(filename, "%s/Dictionary_%05d.dat", STRINGIFY(TEXTONS_DICTIONARY_PATH), dictionary_number);
 
   if ((dictionary_logger = fopen(filename, "r"))) {
 
