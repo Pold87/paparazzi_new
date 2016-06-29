@@ -23,7 +23,7 @@
     <subsystem name="motor_mixing"/>
     <subsystem name="actuators" type="ardrone2"/>
     <subsystem name="imu" type="ardrone2"/>
-    <subsystem name="stabilization" type="indi"/>
+    <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs" type="int_cmpl_quat"/>
     <subsystem name="ins" type="extended"/>
   </firmware>
@@ -39,7 +39,7 @@
       <define name="DICTIONARY_NUMBER" value="1"/>
     </load>
     <load name="trexton.xml">
-      <!-- <define name="TREXTON_CAMERA" value="bottom_camera"/> -->
+      <define name="TREXTON_PREDICT" value="0"/>
       </load>
     <load name="video_thread.xml">
       <define name="VIDEO_THREAD_FPS" value="4"/>
@@ -51,10 +51,10 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="70"/>
     </load>
-    <load name="video_usb_logger.xml"/>
-    <load name="nav_survey_rectangle_rotorcraft.xml">
-      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
-    </load>
+    <!-- <load name="video_usb_logger.xml"/> -->
+    <!-- <load name="nav_survey_rectangle_rotorcraft.xml"> -->
+    <!--   <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/> -->
+    <!-- </load> -->
     <load name="nav_survey_poly_rotorcraft.xml">
       <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
     </load>
@@ -139,41 +139,11 @@
     <define name="VFF_R_GPS" value="0.01"/>
   </section>
 
-  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- control effectiveness -->
-    <define name="G1_P" value="0.028551973"/>
-    <define name="G1_Q" value="0.023775417"/>
-    <define name="G1_R" value="0.00173069"/>
-    <define name="G2_R" value="0.086460732"/>
-
-    <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="380.0"/>
-    <define name="REF_ERR_Q" value="380.0"/>
-    <define name="REF_ERR_R" value="70.0"/>
-    <define name="REF_RATE_P" value="21.6"/>
-    <define name="REF_RATE_Q" value="21.6"/>
-    <define name="REF_RATE_R" value="11.0"/>
-
-    <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="20.0"/>
-    <define name="FILT_ZETA" value="0.55"/>
-    <define name="FILT_OMEGA_R" value="20.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
-
-    <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.06"/>
-    <define name="ACT_DYN_Q" value="0.06"/>
-    <define name="ACT_DYN_R" value="0.06"/>
-
-    <!-- Adaptive Learning Rate -->
-    <define name="USE_ADAPTIVE" value="FALSE"/>
-    <define name="ADAPTIVE_MU" value="0.0001"/>
-  </section>
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="45" unit="deg"/>
     <define name="SP_MAX_THETA" value="45" unit="deg"/>
-    <define name="SP_MAX_R" value="180" unit="deg/s"/>
+    <define name="SP_MAX_R" value="600" unit="deg/s"/>
     <define name="DEADBAND_A" value="0"/>
     <define name="DEADBAND_E" value="0"/>
     <define name="DEADBAND_R" value="250"/>
@@ -189,11 +159,88 @@
     <define name="REF_MAX_Q" value="600." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R" value="450" unit="deg/s"/>
+    <define name="REF_OMEGA_R" value="200" unit="deg/s"/>
     <define name="REF_ZETA_R" value="0.9"/>
-    <define name="REF_MAX_R" value="600." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_MAX_R" value="300." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(4000.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="850"/>
+    <define name="PHI_DGAIN" value="425"/>
+    <define name="PHI_IGAIN" value="0"/>
+
+    <define name="THETA_PGAIN" value="850"/>
+    <define name="THETA_DGAIN" value="425"/>
+    <define name="THETA_IGAIN" value="0"/>
+
+    <define name="PSI_PGAIN" value="1000"/>
+    <define name="PSI_DGAIN" value="700"/>
+    <define name="PSI_IGAIN" value="0"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value="100"/>
   </section>
+
+
+
+  <!-- <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_"> -->
+  <!--   <\!-- control effectiveness -\-> -->
+  <!--   <define name="G1_P" value="0.028551973"/> -->
+  <!--   <define name="G1_Q" value="0.023775417"/> -->
+  <!--   <define name="G1_R" value="0.00173069"/> -->
+  <!--   <define name="G2_R" value="0.086460732"/> -->
+
+  <!--   <\!-- reference acceleration for attitude control -\-> -->
+  <!--   <define name="REF_ERR_P" value="380.0"/> -->
+  <!--   <define name="REF_ERR_Q" value="380.0"/> -->
+  <!--   <define name="REF_ERR_R" value="70.0"/> -->
+  <!--   <define name="REF_RATE_P" value="21.6"/> -->
+  <!--   <define name="REF_RATE_Q" value="21.6"/> -->
+  <!--   <define name="REF_RATE_R" value="11.0"/> -->
+
+  <!--   <\!-- second order filter parameters -\-> -->
+  <!--   <define name="FILT_OMEGA" value="20.0"/> -->
+  <!--   <define name="FILT_ZETA" value="0.55"/> -->
+  <!--   <define name="FILT_OMEGA_R" value="20.0"/> -->
+  <!--   <define name="FILT_ZETA_R" value="0.55"/> -->
+
+  <!--   <\!-- first order actuator dynamics -\-> -->
+  <!--   <define name="ACT_DYN_P" value="0.06"/> -->
+  <!--   <define name="ACT_DYN_Q" value="0.06"/> -->
+  <!--   <define name="ACT_DYN_R" value="0.06"/> -->
+
+  <!--   <\!-- Adaptive Learning Rate -\-> -->
+  <!--   <define name="USE_ADAPTIVE" value="FALSE"/> -->
+  <!--   <define name="ADAPTIVE_MU" value="0.0001"/> -->
+  <!-- </section> -->
+
+  <!-- <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_"> -->
+  <!--   <\!-- setpoints -\-> -->
+  <!--   <define name="SP_MAX_PHI" value="45" unit="deg"/> -->
+  <!--   <define name="SP_MAX_THETA" value="45" unit="deg"/> -->
+  <!--   <define name="SP_MAX_R" value="180" unit="deg/s"/> -->
+  <!--   <define name="DEADBAND_A" value="0"/> -->
+  <!--   <define name="DEADBAND_E" value="0"/> -->
+  <!--   <define name="DEADBAND_R" value="250"/> -->
+
+  <!--   <\!-- reference -\-> -->
+  <!--   <define name="REF_OMEGA_P" value="450" unit="deg/s"/> -->
+  <!--   <define name="REF_ZETA_P" value="0.9"/> -->
+  <!--   <define name="REF_MAX_P" value="600." unit="deg/s"/> -->
+  <!--   <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/> -->
+
+  <!--   <define name="REF_OMEGA_Q" value="450" unit="deg/s"/> -->
+  <!--   <define name="REF_ZETA_Q" value="0.9"/> -->
+  <!--   <define name="REF_MAX_Q" value="600." unit="deg/s"/> -->
+  <!--   <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/> -->
+
+  <!--   <define name="REF_OMEGA_R" value="450" unit="deg/s"/> -->
+  <!--   <define name="REF_ZETA_R" value="0.9"/> -->
+  <!--   <define name="REF_MAX_R" value="600." unit="deg/s"/> -->
+  <!--   <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/> -->
+  <!-- </section> -->
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="583"/>

@@ -7,7 +7,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/VS/vs_create_training_set.xml"
    settings="[settings/rotorcraft_basic.xml] [settings/control/rotorcraft_guidance.xml]"
-   settings_modules="[modules/geo_mag.xml] [modules/air_data.xml] modules/cv_textons.xml [modules/video_thread.xml] [modules/video_rtp_stream.xml] [modules/nav_survey_rectangle_rotorcraft.xml] [modules/nav_survey_poly_rotorcraft.xml] [modules/digital_cam_video.xml]"
+   settings_modules="[modules/geo_mag.xml] [modules/air_data.xml] modules/cv_textons.xml [modules/video_thread.xml] [modules/video_rtp_stream.xml] [modules/nav_survey_poly_rotorcraft.xml] [modules/digital_cam_video.xml]"
    gui_color="#ffffa233f360"
   />
   <aircraft
@@ -20,16 +20,5 @@
    settings="[settings/rotorcraft_basic.xml] [settings/control/rotorcraft_guidance.xml]"
    settings_modules="modules/geo_mag.xml modules/cv_textons.xml modules/cv_opticflow.xml modules/air_data.xml modules/video_thread.xml"
    gui_color="#ffffa233f360"
-  />
-  <aircraft
-   name="trextonac"
-   ac_id="1"
-   airframe="airframes/VS/vs_trexton_bebop.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/VS/vs_create_training_set.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_indi.xml"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/video_rtp_stream.xml"
-   gui_color="#ffffffffffff"
   />
 </conf>
