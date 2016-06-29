@@ -287,7 +287,7 @@ void extract_one_patch(struct image_t *img, double *patch, int x, int y, uint8_t
   double max_val = -1000;
 
   /* Extract patches  */
-  for (i = 0; i < TOTAL_PATCH_SIZE; i++) {
+  for (i = 0; i < TREXTON_TOTAL_PATCH_SIZE; i++) {
 
     /* TODO: SOMETHINGS TERRIBLY WRONG WITH THE RANDOM !!! POSITIONS */
     
@@ -339,8 +339,8 @@ void extract_one_patch(struct image_t *img, double *patch, int x, int y, uint8_t
   /*   } */
   /* } */
 
-  #if TEXTON_STANDARIZE
-  for (i = 0; i < TOTAL_PATCH_SIZE; i++) {
+  #if TREXTON_TEXTON_STANDARIZE
+  for (i = 0; i < TREXTON_TOTAL_PATCH_SIZE; i++) {
     if ((max_val - min_val) < 80) {
       patch[i] = 0.0;
     } else {
@@ -359,12 +359,12 @@ void extract_one_patch(struct image_t *img, double *patch, int x, int y, uint8_t
 }
 
 /* Get the texton histogram of an image */
-void get_texton_histogram(struct image_t *img, float texton_histogram[], double textons[][TOTAL_PATCH_SIZE]) {
+void get_texton_histogram(struct image_t *img, float texton_histogram[], double textons[][TREXTON_TOTAL_PATCH_SIZE]) {
 
   printf("Type of in get_texton_hist  is %d\n", img->type);
-    uint8_t texton_ids[MAX_TEXTONS * CHANNELS]; /*  texton IDs */
-    double patch[TOTAL_PATCH_SIZE];
-    printf("Total patch is is %d\n", TOTAL_PATCH_SIZE);
+    uint8_t texton_ids[TREXTON_MAX_TEXTONS * TREXTON_CHANNELS]; /*  texton IDs */
+    double patch[TREXTON_TOTAL_PATCH_SIZE];
+    printf("Total patch is is %d\n", TREXTON_TOTAL_PATCH_SIZE);
     uint8_t texton_id;
 
     /* Set random seed */
@@ -378,11 +378,11 @@ void get_texton_histogram(struct image_t *img, float texton_histogram[], double 
       fp_xy = fopen("xy_pos.csv", "w");
 
     int i;
-    for (i = 0; i < MAX_TEXTONS; i++) {
+    for (i = 0; i < TREXTON_MAX_TEXTONS; i++) {
 
        /* Extract random locations of patchsize x patchsize */
-      int max_x = img->w - PATCH_SIZE;
-      int max_y = img->h - PATCH_SIZE;
+      int max_x = img->w - TREXTON_PATCH_SIZE;
+      int max_y = img->h - TREXTON_PATCH_SIZE;
 
       int rand_x = rand();
       int rand_y = rand();
@@ -395,8 +395,8 @@ void get_texton_histogram(struct image_t *img, float texton_histogram[], double 
       fprintf(fp_xy, "%d,%d\n", x, y);
 
       int channel;
-      for (channel = 0; channel < CHANNELS; channel++) {
-         extract_one_patch(img, patch, x, y, PATCH_SIZE, channel);
+      for (channel = 0; channel < TREXTON_CHANNELS; channel++) {
+         extract_one_patch(img, patch, x, y, TREXTON_PATCH_SIZE, channel);
 
 	/* int u; */
 	/* printf("patch is"); */
@@ -409,7 +409,7 @@ void get_texton_histogram(struct image_t *img, float texton_histogram[], double 
 	texton_id = label_image_patch(patch, textons, channel);
 
 	/* ... and fill the feature vector */
-	texton_ids[i + channel * MAX_TEXTONS] = texton_id;
+  texton_ids[i + channel * TREXTON_MAX_TEXTONS] = texton_id;
 	
       }
 
@@ -425,7 +425,7 @@ void get_texton_histogram(struct image_t *img, float texton_histogram[], double 
     
     #if TREXTON_DEBUG
       printf("Texton histogram\n");
-      for (i = 0; i < NUM_TEXTONS * CHANNELS; i++)
+      for (i = 0; i < TREXTON_NUM_TEXTONS * TREXTON_CHANNELS; i++)
 	printf("%f ", texton_histogram[i]);
       printf("\n");
     #endif
@@ -477,12 +477,12 @@ void make_histogram(uint8_t *texton_ids, float texton_hist[]) {
 
   int i = 0;
   /* Set all to 0 (TODO: there might be a better option!!) */
-  for (i = 0; i < NUM_TEXTONS * CHANNELS; i++) {
+  for (i = 0; i < TREXTON_NUM_TEXTONS * TREXTON_CHANNELS; i++) {
     texton_hist[i] =  0.0;
   }
   
-  for (i = 0; i < MAX_TEXTONS * CHANNELS; i++) {
-    texton_hist[texton_ids[i]] += (1.0 / (MAX_TEXTONS * CHANNELS));
+  for (i = 0; i < TREXTON_MAX_TEXTONS * TREXTON_CHANNELS; i++) {
+    texton_hist[texton_ids[i]] += (1.0 / (TREXTON_MAX_TEXTONS * TREXTON_CHANNELS));
   }
 }
 
@@ -580,17 +580,17 @@ void save_histogram_both(double hist_color[], float hist_textons[], FILE *fp_all
 
 /* Compare an image patch to all existing textons using Euclidean
    distance */
-uint8_t label_image_patch(double patch[], double textons[][TOTAL_PATCH_SIZE], uint8_t channel){
+uint8_t label_image_patch(double patch[], double textons[][TREXTON_TOTAL_PATCH_SIZE], uint8_t channel){
 
   /* Total patch size is width of patch times height of patch */
-  uint8_t patch_size = PATCH_SIZE;
+  uint8_t patch_size = TREXTON_PATCH_SIZE;
 
-  int num_textons = NUM_TEXTONS;
+  int num_textons = TREXTON_NUM_TEXTONS;
   uint8_t total_patch_size = pow(patch_size, 2);
 
   double dist; /* Current distance between patch and texton */
   int id = 0; /* ID of closest texton */
-  double min_dist = MAX_POSSIBLE_DIST; /* Minimum distance between patch and texton */
+  double min_dist = TREXTON_MAX_POSSIBLE_DIST; /* Minimum distance between patch and texton */
 
   /* Label the patch */
   int i;

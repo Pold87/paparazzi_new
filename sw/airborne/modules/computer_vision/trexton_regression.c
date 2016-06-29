@@ -15,7 +15,7 @@
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
 
-#include "cv.h"
+/* #include "cv.h" */
 #include "textons.h"
 #include "opticflow_module.h"
 #include "subsystems/datalink/telemetry.h"
@@ -25,35 +25,34 @@
 #include <errno.h>
 #include "state.h"
 
-uint8_t save_histogram = SAVE_HISTOGRAM;
-uint8_t stream_video = SEND_VIDEO;
-uint8_t use_color = USE_COLOR;
-//uint8_t predict = PREDICT;
-uint8_t predict = 1; // Predict position using kNN
-uint8_t use_flow = USE_FLOW;
-uint8_t evaluate = EVALUATE;
+uint8_t save_histogram = TREXTON_SAVE_HISTOGRAM;
+uint8_t stream_video = TREXTON_SEND_VIDEO;
+uint8_t use_color = TREXTON_USE_COLOR;
+uint8_t predict = TREXTON_PREDICT;
+uint8_t use_flow = TREXTON_USE_FLOW;
+uint8_t evaluate = TREXTON_EVALUATE;
 
-static int k = 1; /* Number of nearest neighbors for kNN */
+static int k = TREXTON_K; /* Number of nearest neighbors for kNN */
 static int use_variance = 0;
 
 /* Histograms and their paths */
 static char histogram_filename[] = "mat_train_hists_texton.csv";
 static char position_filename[] =  "cyberzoo_pos_optitrack.csv";
 static char test_position_filename[] =  "cyberzoo_pos_optitrack.csv";
-static struct measurement all_positions[NUM_HISTOGRAMS];
-static struct measurement all_test_positions[NUM_TEST_HISTOGRAMS];
-static float regression_histograms[NUM_HISTOGRAMS][SIZE_HIST];
-static float regression_histograms_color[NUM_HISTOGRAMS][SIZE_HIST];
+static struct measurement all_positions[TREXTON_NUM_HISTOGRAMS];
+static struct measurement all_test_positions[TREXTON_NUM_TEST_HISTOGRAMS];
+static float regression_histograms[TREXTON_NUM_HISTOGRAMS][TREXTON_SIZE_HIST];
+static float regression_histograms_color[TREXTON_NUM_HISTOGRAMS][TREXTON_SIZE_HIST];
 static int current_test_histogram = 0;
 
 /* The distributions */
-double color_hist[COLOR_CHANNELS*NUM_COLOR_BINS] = {0.0};
+double color_hist[TREXTON_COLOR_CHANNELS*TREXTON_NUM_COLOR_BINS] = {0.0};
 
 /* Global variables */
 struct particle particles[N];
 struct particle p_forward; /* Particle filter result */
 struct measurement flow; /* Optical flow result */
-struct measurement pos[K]; /* Estimates of kNN */
+struct measurement pos[TREXTON_K]; /* Estimates of kNN */
 struct particle var; /* Variance of particles */
 static int image_num = 0;
 int targetPos_X = 78;
@@ -89,7 +88,7 @@ struct image_t* trexton_func(struct image_t* img) {
 
    /* Use color histograms or just textons? */
    if (use_color) {
-      get_color_histogram(img, color_hist, NUM_COLOR_BINS);
+      get_color_histogram(img, color_hist, TREXTON_NUM_COLOR_BINS);
    }
 
    /* Stream video to ground station */
@@ -100,7 +99,7 @@ struct image_t* trexton_func(struct image_t* img) {
    /* Save extracted histogram to file (the histogram is received from the texton module) */
    if (save_histogram) {
       fp_hist = fopen("saved.csv", "a");
-      save_histogram_float(texton_distribution, fp_hist, NUM_TEXTONS);
+      save_histogram_float(texton_distribution, fp_hist, TREXTON_NUM_TEXTONS);
       fclose(fp_hist);
    }
 
@@ -109,10 +108,10 @@ struct image_t* trexton_func(struct image_t* img) {
 
      /* For colors */
      if (use_color) {
-        predict_position(pos, color_hist, COLOR_CHANNELS * NUM_COLOR_BINS);
+        predict_position(pos, color_hist, TREXTON_COLOR_CHANNELS * TREXTON_NUM_COLOR_BINS);
      } else {
         /* For textons */
-        predict_position(pos, texton_distribution, NUM_TEXTONS * CHANNELS);
+        predict_position(pos, texton_distribution, TREXTON_NUM_TEXTONS * TREXTON_CHANNELS);
      }
 
      /* Use optical flow for particle filter updates */
@@ -157,12 +156,12 @@ void predict_position(struct measurement pos[], float hist[], int hist_size)
   printf("Closest is %d\n", closest);
   int h = 0; /* Histogram iterator variable */
 
-  struct measurement measurements[NUM_HISTOGRAMS];
+  struct measurement measurements[TREXTON_NUM_HISTOGRAMS];
   float dist;
 
   /* Compare current texton histogram to all saved histograms for
      a certain class */
-  for (h = 0; h < NUM_HISTOGRAMS; h++) {
+  for (h = 0; h < TREXTON_NUM_HISTOGRAMS; h++) {
     /* dist = euclidean_dist_int(hist, regression_histograms[h], hist_size); */
      if (use_color)
         dist = chi_square_dist_double(hist, regression_histograms_color[h], hist_size);
@@ -290,9 +289,11 @@ if (predict) {
 
      /* Read histograms */
      if (use_color) {
-        read_color_histograms_from_csv(regression_histograms_color, histogram_filename, SIZE_HIST);
+        read_color_histograms_from_csv(regression_histograms_color,
+                                       histogram_filename, TREXTON_SIZE_HIST);
      } else {
-        read_histograms_from_csv(regression_histograms, histogram_filename, SIZE_HIST);
+        read_histograms_from_csv(regression_histograms,
+                                 histogram_filename, TREXTON_SIZE_HIST);
      }
 
      /* Read x, y, position from SIFT */

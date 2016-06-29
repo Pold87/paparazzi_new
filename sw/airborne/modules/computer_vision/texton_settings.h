@@ -25,73 +25,144 @@ he GNU General Public License as published by
 #include <stdio.h>
 #include "lib/vision/image.h"
 
-
-/* /\* The video device *\/ */
-/* #ifndef TREXTON_DEVICE */
-/* #define TREXTON_DEVICE /dev/video2      ///< The video device */
-/* #endif */
-
-/* The video device size (width, height) */
-#ifndef TREXTON_DEVICE_SIZE
-#define TREXTON_DEVICE_SIZE 640,480     ///< The video device size (width, height)
-/* /\* #define TREXTON_DEVICE_SIZE 640,480     ///< The video device size (width, height) *\/ */
-/* /\* #define TREXTON_DEVICE_SIZE 1280, 720     ///< The video device size (width, height) *\/ */
-#endif
-
-/* The video device buffers (the amount of V4L2 buffers) */
-/* #ifndef TREXTON_DEVICE_BUFFERS */
-/* #define TREXTON_DEVICE_BUFFERS 15       ///< The video device buffers (the amount of V4L2 buffers) */
-/*#endif*/
-
-#define TREXTON_DEBUG false
-
-/* #define VIEWVIDEO_HOST 192.168.1.255 */
-/* #define VIEWVIDEO_PORT_OUT 5000 */
-/* #define VIEWVIDEO_BROADCAST true */
-
 /* Analysis */
-#define MEASURE_TIME true
 
-/* treXton settings */
-#define PATCH_SIZE  5
-#define TOTAL_PATCH_SIZE 25
-#define NUM_TEXTONS 20
-//#define NUM_TEXTONS 33
-#define MAX_TEXTONS 5000
-#define MAX_POSSIBLE_DIST 50000
+#ifndef TREXTON_DEBUG
+#define TREXTON_DEBUG false
+#endif
+PRINT_CONFIG_VAR(TREXTON_DEBUG)
+
+
+#ifndef TREXTON_MEASURE_TIME
+#define TREXTON_MEASURE_TIME false
+#endif
+PRINT_CONFIG_VAR(TREXTON_MEASURE_TIME)
+
+#ifndef TREXTON_PATCH_SIZE
+#define TREXTON_PATCH_SIZE  5
+#endif
+PRINT_CONFIG_VAR(TREXTON_PATCH_SIZE)
+
+#ifndef TREXTON_TOTAL_PATCH_SIZE
+#define TREXTON_TOTAL_PATCH_SIZE 25
+#endif
+PRINT_CONFIG_VAR(TREXTON_TOTAL_PATCH_SIZE)
+
+#ifndef TREXTON_NUM_TEXTONS
+#define TREXTON_NUM_TEXTONS 20
+#endif
+PRINT_CONFIG_VAR(TREXTON_NUM_TEXTONS)
+
+#ifndef TREXTON_MAX_TEXTONS
+#define TREXTON_MAX_TEXTONS 5000
+#endif
+PRINT_CONFIG_VAR(TREXTON_MAX_TEXTONS)
+
+#ifndef TREXTON_MAX_POSSIBLE_DIST
+#define TREXTON_MAX_POSSIBLE_DIST 50000
+#endif
+PRINT_CONFIG_VAR(TREXTON_MAX_POSSIBLE_DIST)
 
 /* Maximum lines read from histogram CSV */
-#define NUM_HISTOGRAMS 625
-#define NUM_CLASSES 4
-#define PREDICT true
-#define EVALUATE true
-#define NUM_TEST_HISTOGRAMS 625
-#define SAVE_HISTOGRAM true
-#define USE_WEBCAM true
-#define USE_FLOW false
-#define HISTOGRAM_PATH "saved.csv"
-#define USE_CONVERSIONS false
-#define TEXTON_STANDARIZE true
-#define COLOR_CHANNELS 3
-#define NUM_COLOR_BINS 48
-#define SEND_VIDEO false
-#define USE_COLOR false
-#define USE_ALL false
-#define CHANNELS 1
-#define K 1
-
-#if USE_COLOR
-  #define SIZE_HIST NUM_COLOR_BINS*COLOR_CHANNELS
-#elif USE_ALL
-  #define SIZE_HIST NUM_TEXTONS*CHANNELS+NUM_COLOR_BINS*COLOR_CHANNELS
-#else
-  #define SIZE_HIST NUM_TEXTONS*CHANNELS
+#ifndef TREXTON_NUM_HISTOGRAMS
+#define TREXTON_NUM_HISTOGRAMS 625
 #endif
+PRINT_CONFIG_VAR(TREXTON_NUM_HISTOGRAMS)
 
-/* Total patch size is width of patch times height of patch */
-/* static uint8_t patch_size = PATCH_SIZE; */
-/* static uint8_t total_patch_size = 25; //pow(patch_size, 2); */
-/* static int knn = 5; */
+#ifndef TREXTON_NUM_CLASSES
+#define TREXTON_NUM_CLASSES 4
+#endif
+PRINT_CONFIG_VAR(TREXTON_NUM_CLASSES)
+
+#ifndef TREXTON_PREDICT
+#define TREXTON_PREDICT true
+#endif
+PRINT_CONFIG_VAR(TREXTON_PREDICT)
+
+#ifndef TREXTON_EVALUATE
+#define TREXTON_EVALUATE true
+#endif
+PRINT_CONFIG_VAR(TREXTON_EVALUATE)
+
+#ifndef TREXTON_NUM_TEST_HISTOGRAMS
+#define TREXTON_NUM_TEST_HISTOGRAMS 625
+#endif
+PRINT_CONFIG_VAR(TREXTON_NUM_TEST_HISTOGRAMS)
+
+#ifndef TREXTON_SAVE_HISTOGRAM
+#define TREXTON_SAVE_HISTOGRAM true
+#endif
+PRINT_CONFIG_VAR(TREXTON_SAVE_HISTOGRAM)
+
+#ifndef TREXTON_USE_WEBCAM
+#define TREXTON_USE_WEBCAM true
+#endif
+PRINT_CONFIG_VAR(TREXTON_USE_WEBCAM)
+
+#ifndef TREXTON_USE_FLOW
+#define TREXTON_USE_FLOW false
+#endif
+PRINT_CONFIG_VAR(TREXTON_USE_FLOW)
+
+#ifndef TREXTON_HISTOGRAM_PATH
+#define TREXTON_HISTOGRAM_PATH "saved.csv"
+#endif
+PRINT_CONFIG_VAR(TREXTON_HISTOGRAM_PATH)
+
+#ifndef USE_CONVERSIONS
+#define USE_CONVERSIONS false
+#endif
+PRINT_CONFIG_VAR(TREXTON_USE_CONVERSIONS)
+
+#ifndef TREXTON_TEXTON_STANDARIZE
+#define TREXTON_TEXTON_STANDARIZE true
+#endif
+PRINT_CONFIG_VAR(TREXTON_TEXTON_STANDARIZE)
+
+#ifndef TREXTON_COLOR_CHANNELS
+#define TREXTON_COLOR_CHANNELS 3
+#endif
+PRINT_CONFIG_VAR(TREXTON_COLOR_CHANNELS)
+
+#ifndef TREXTON_NUM_COLOR_BINS
+#define TREXTON_NUM_COLOR_BINS 48
+#endif
+PRINT_CONFIG_VAR(TREXTON_NUM_COLOR_BINS)
+
+
+#ifndef TREXTON_SEND_VIDEO
+#define TREXTON_SEND_VIDEO false
+#endif
+PRINT_CONFIG_VAR(TREXTON_SEND_VIDEO)
+
+
+#ifndef TREXTON_USE_COLOR
+#define TREXTON_USE_COLOR false
+#endif
+PRINT_CONFIG_VAR(TREXTON_USE_COLOR)
+
+#ifndef TREXTON_USE_ALL
+#define TREXTON_USE_ALL false
+#endif
+PRINT_CONFIG_VAR(TREXTON_USE_ALL)
+
+#ifndef TREXTON_CHANNELS
+#define TREXTON_CHANNELS 1
+#endif
+PRINT_CONFIG_VAR(TREXTON_CHANNELS)
+
+#ifndef TREXTON_K
+#define TREXTON_K 1
+#endif
+PRINT_CONFIG_VAR(TREXTON_K)
+
+#if TREXTON_USE_COLOR
+  #define TREXTON_SIZE_HIST TREXTON_NUM_COLOR_BINS*TREXTON_COLOR_CHANNELS
+#elif TREXTON_USE_ALL
+  #define TREXTON_SIZE_HIST TREXTON_NUM_TEXTONS*CHANNELS+TREXTON_NUM_COLOR_BINS*TREXTON_COLOR_CHANNELS
+#else
+  #define TREXTON_SIZE_HIST TREXTON_NUM_TEXTONS*TREXTON_CHANNELS
+#endif
 
 
 #endif
