@@ -197,10 +197,10 @@
   </message>
 
    <message name="TREXTON" id="24">
-    <field name="trexton_pos_x" type="int16" unit="cm"/>
-    <field name="trexton_pos_y" type="int16" unit="cm"/>
-    <field name="optitrack_pos_x" type="int16" unit="cm"/>
-    <field name="optitrack_pos_y" type="int16" unit="cm"/>
+    <field name="trexton_pos_x" type="float" unit="cm"/>
+    <field name="trexton_pos_y" type="float" unit="cm"/>
+    <field name="optitrack_pos_x" type="float" unit="cm"/>
+    <field name="optitrack_pos_y" type="float" unit="cm"/>
     <field name="entropy" type="float"/>
     <field name="uncertainty_x" type="float"/>
     <field name="uncertainty_y" type="float"/>
@@ -224,19 +224,6 @@
     <field name="t18" type="float"/>
     <field name="t19" type="float"/>
     <field name="t20" type="float"/>
-    <field name="t21" type="float"/>
-    <field name="t22" type="float"/>
-    <field name="t23" type="float"/>
-    <field name="t24" type="float"/>
-    <field name="t25" type="float"/>
-    <field name="t26" type="float"/>
-    <field name="t27" type="float"/>
-    <field name="t28" type="float"/>
-    <field name="t29" type="float"/>
-    <field name="t30" type="float"/>
-    <field name="t31" type="float"/>
-    <field name="t32" type="float"/>
-    <field name="t33" type="float"/>
   </message>
 
 

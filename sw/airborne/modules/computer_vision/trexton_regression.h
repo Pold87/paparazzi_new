@@ -36,6 +36,7 @@
 
 //void init_positions(void);
 
+extern struct image_t* trexton_func(struct image_t* img);
 void send_pos_to_ground_station(int x, int y);
 void predict_position(struct measurement pos[], float hist[], int hist_size);
 struct measurement predict_fann(double hist[], int size_hist);
@@ -46,5 +47,9 @@ struct measurement linear_regression_prediction(int texton_histogram[]);
 extern void trexton_init(void);
 extern uint8_t isInTargetPos(uint8_t wp_id);
 extern uint8_t isCertain(void);
+
+// settings
+extern uint8_t use_optitrack;
+extern uint8_t save_histogram;
 
 #endif

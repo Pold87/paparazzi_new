@@ -41,7 +41,7 @@
       <define name="TEXTONS_DICTIONARY_PATH" value="/home/pold/paparazzi/"/>
       <define name="TEXTONS_DICTIONARY_NUMBER" value="0"/>
       <define name="TEXTONS_N_SAMPLES" value="500"/>
-      <define name="TREXTON_NUM_HISTOGRAMS" value="400"/>
+      <define name="TREXTON_NUM_HISTOGRAMS" value="700"/>
     </load>
     <load name="cv_opticflow.xml"/>
     <load name="air_data.xml"/>

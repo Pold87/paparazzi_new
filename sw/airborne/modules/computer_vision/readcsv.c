@@ -88,6 +88,24 @@ void cb_write_to_position_arr(void *s, size_t i, void *arr) {
   col++;
 }
 
+void cb_write_to_optitrack_position_arr(void *s, size_t i, void *arr) {
+
+  /* Save in texton array */
+  struct measurement* pos_arr = (struct measurement*) arr;
+  if (max_lines > 0) {
+    
+    /* the first column has the x coordinate */
+    if (col == 0) {
+      pos_arr[row].x = (float) atoi(s);
+    }
+    /* and the second one the y coordinate */
+    if (col == 1)
+      pos_arr[row].y = (float) atoi(s);
+  }
+  col++;
+}
+
+
 
 void cb_end_of_line(int c, void *outfile) {
 
@@ -205,6 +223,19 @@ uint8_t read_test_histograms_from_csv(int *histograms, char *filename) {
   /*   printf("pos in func is %f", positions[i].x); */
   /* } */
 
+
+  return r;
+
+ }
+
+ uint8_t read_optitrack_positions_from_csv(struct measurement *measurements, char *filename) {
+   
+  printf("[read_optitrack_positions_from_csv] filename is \n%s\n", filename);
+  fflush(stdout); 
+
+  max_lines = TREXTON_NUM_HISTOGRAMS;
+  width = 2; /* CSV header is x, y */
+  uint8_t r = read_csv_into_array(measurements, filename, cb_write_to_position_arr);
 
   return r;
 

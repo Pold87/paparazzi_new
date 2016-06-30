@@ -34,12 +34,16 @@
     <load name="air_data.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <load name="cv_textons.xml">
-      <define name="LOAD_DICTIONARY" value="TRUE"/>
-      <define name="DICTIONARY_PATH" value="."/>
-      <define name="DICTIONARY_NUMBER" value="1"/>
+      <define name="TEXTONS_LOAD_DICTIONARY" value="1"/>
+      <!-- <define name="TEXTONS_DICTIONARY_PATH" value="./"/> -->
+      <define name="TEXTONS_DICTIONARY_NUMBER" value="0"/>
+      <define name="TEXTONS_N_SAMPLES" value="500"/>
+      <!-- <define name="TREXTON_NUM_HISTOGRAMS" value="400"/> -->
     </load>
+    <load name="cv_opticflow.xml"/>
     <load name="trexton.xml">
-      <define name="TREXTON_PREDICT" value="0"/>
+      <define name="TREXTON_K" value="3"/>
+      <define name="TREXTON_PREDICT" value="1"/>
       </load>
     <load name="video_thread.xml">
       <define name="VIDEO_THREAD_FPS" value="4"/>

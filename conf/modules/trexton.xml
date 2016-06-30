@@ -9,10 +9,19 @@
       <define name="K" value="1" description="Number of nearest neighbors for kNN"/>
       <define name="USE_FLOW" value="FALSE" description="Use optical flow for updating of particle filter"/>
       <define name="PREDICT" value="TRUE" description="Predict positions using kNN or just extract histograms"/>
+      <define name="SAVE_HISTOGRAM" value="FALSE" description="Save histograms during flight"/>
     </section>
 
-
   </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="treXton">
+        <dl_setting var="use_optitrack" min="0" step="1" max="1" module="computer_vision/trexton_regression" shortname="use opti." values="NO|YES" param="USE_OPTITRACK"/>
+        <dl_setting var="save_histogram" min="0" step="1" max="1" module="computer_vision/trexton_regression" shortname="save hist." values="NO|YES" param="SAVE_HISTOGRAM"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
 
 
   <header>

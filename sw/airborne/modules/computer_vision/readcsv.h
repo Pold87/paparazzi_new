@@ -12,6 +12,7 @@ void cb_write_to_int_arr(void *s, size_t i, void *arr);
 void cb_write_to_float_arr(void *s, size_t i, void *arr);
 void cb_write_to_double_arr(void *s, size_t i, void *arr);
 void cb_write_to_position_arr(void *s, size_t i, void *arr);
+void cb_write_to_optitrack_position_arr(void *s, size_t i, void *arr);
 
 void cb_end_of_line(int c, void *outfile);
 

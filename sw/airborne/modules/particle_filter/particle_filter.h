@@ -1,7 +1,7 @@
 #ifndef PARTICLE_FILTER_H
 #define PARTICLE_FILTER_H
 
-#define N 1000 /* Total number of particles */
+#define N 100 /* Total number of particles */
 #define M 200 /* Number of fake measurements */
 
 struct particle {
