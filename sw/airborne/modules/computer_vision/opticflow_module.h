@@ -29,10 +29,12 @@
 
 // Include opticflow calculator
 #include "opticflow/opticflow_calculator.h"
-
+#include "modules/particle_filter/particle_filter.h"
 
 // Needed for settings
 extern struct opticflow_t opticflow;
+
+extern struct measurement flow_trexton;
 
 // Module functions
 extern void opticflow_module_init(void);

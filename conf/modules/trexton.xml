@@ -10,6 +10,8 @@
       <define name="USE_FLOW" value="FALSE" description="Use optical flow for updating of particle filter"/>
       <define name="PREDICT" value="TRUE" description="Predict positions using kNN or just extract histograms"/>
       <define name="SAVE_HISTOGRAM" value="FALSE" description="Save histograms during flight"/>
+      <define name="SAVE_IMG_AND_HISTOGRAM" value="FALSE" description="Save histograms and images during flight"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/data/video/images" description="Location to save images"/>
     </section>
 
   </doc>
@@ -19,6 +21,8 @@
       <dl_settings NAME="treXton">
         <dl_setting var="use_optitrack" min="0" step="1" max="1" module="computer_vision/trexton_regression" shortname="use opti." values="NO|YES" param="USE_OPTITRACK"/>
         <dl_setting var="save_histogram" min="0" step="1" max="1" module="computer_vision/trexton_regression" shortname="save hist." values="NO|YES" param="SAVE_HISTOGRAM"/>
+        <dl_setting var="trexton_save_img_and_histogram" min="0" step="1" max="1" module="computer_vision/trexton_regression" shortname="save img+hist." values="NO|YES" param="SAVE_IMG_AND_HISTOGRAM"/>
+        <dl_setting var="trexton_save_img" min="0" step="1" max="1" module="computer_vision/trexton_regression" shortname="save img." values="NO|YES" param="SAVE_IMG"/>
       </dl_settings>
     </dl_settings>
   </settings>

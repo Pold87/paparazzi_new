@@ -65,11 +65,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->plot->addGraph();
-    ui->plot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, QColor("red"), 20));
-    ui->plot->xAxis->setRange(-500, 500);
-    ui->plot->yAxis->setRange(-500, 500);
+
+    ui->plot->axisRect()->setBackground(QPixmap("/home/pold/from_bebop/img_00195.png"));
+    ui->plot->graph(0)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, QColor("red"), 30));
+    ui->plot->xAxis->setRange(0, 640);
+    ui->plot->yAxis->setRange(0, 480);
     ui->plot->addGraph();
-    ui->plot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, QColor("blue"), 20));
+    ui->plot->graph(1)->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, QColor("blue"), 30));
 
     /* Confidence */
     ui->confBar->addGraph();
@@ -138,8 +140,8 @@ void MainWindow::updateCoords(QString x_trexton, QString y_trexton, QString x_op
     QVector<double> Qx_optitrack(1);
     QVector<double> Qy_optitrack(1);
 
-    Qx_trexton[0] = x_trexton.toInt();
-    Qy_trexton[0] = y_trexton.toInt();
+    Qx_trexton[0] = x_trexton.toDouble();
+    Qy_trexton[0] = 480.0 - y_trexton.toDouble();
 
     Qx_optitrack[0] = x_optitrack.toInt();
     Qy_optitrack[0] = y_optitrack.toInt();
@@ -147,6 +149,7 @@ void MainWindow::updateCoords(QString x_trexton, QString y_trexton, QString x_op
     ui->plot->graph(0)->setData(Qx_trexton, Qy_trexton);
     ui->plot->graph(1)->setData(Qx_optitrack, Qy_optitrack);
 
+    printf("Qx_trexton: %f %f\n", x_trexton.toDouble(), y_trexton.toDouble());
 
     /* Confidence */
     Qconfidence.push_back((x_uncertainty.toDouble() + y_uncertainty.toDouble()) / 2.0);

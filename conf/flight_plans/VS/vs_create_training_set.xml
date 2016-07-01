@@ -81,7 +81,7 @@
       <!-- Perform target landing, if target region is reached  -->
       <!-- <exception cond="isInTargetPos(WP_LANDING)" deroute="land here"/> -->
       <!-- Alternative, if confidence should be taken into account -->
-      <exception cond="isInTargetPos(WP_LANDING) && isCertain()" deroute="land here"/>
+      <!-- <exception cond="isInTargetPos(WP_LANDING) && isCertain()" deroute="land here"/> -->
       <go from="t0" hmode="route" wp="t1"/>
       <stay until="stage_time>5" wp="t1"/>
       <go wp="t2" hmode="route"/>
