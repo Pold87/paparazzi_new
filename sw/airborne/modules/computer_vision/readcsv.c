@@ -33,7 +33,6 @@ void cb_write_to_int_arr(void *s, size_t i, void *arr) {
     acc += str[j] - '0';
  }
 
-  fflush(stdout);
   if (max_lines > 0)
     int_arr[row * width + col] = acc;
   col++;
@@ -60,30 +59,32 @@ void cb_write_to_float_arr(void *s, size_t i, void *arr) {
 
 
 void cb_write_to_position_arr(void *s, size_t i, void *arr) {
-   i = i;
-  /* Skip header */
-  if (row == 0)
-    return;
 
   /* Save in texton array */
   struct measurement* pos_arr = (struct measurement*) arr;
   if (max_lines > 0) {
     
+    unsigned char *str = s;
+
+    /* Convert string to int */
+    size_t j;
+    int acc = 0;
+    for (j = 0; j < i; j++) {
+      acc = acc * 10;
+      acc += str[j] - '0';
+    }
+
     /* printf("row is %d and col is %d", row, col); */
     
     /* the first column has the x coordinate */
     /* it is row - 1 because the header was skipped */
-    if (col == 1) {
-    pos_arr[row - 1].x = atof(s);
-
-    /* printf("s is %f\n", atof(s)); */
+    if (col == 0) {
+      pos_arr[row].x = acc;
     }
 
-
     /* and the second one the y coordinate */
-    if (col == 2)
-    pos_arr[row - 1].y = atof(s);
-
+    if (col == 1)
+      pos_arr[row].y = acc;
   }
   col++;
 }
@@ -215,7 +216,7 @@ uint8_t read_test_histograms_from_csv(int *histograms, char *filename) {
   fflush(stdout); 
 
   max_lines = TREXTON_NUM_HISTOGRAMS;
-  width = 4; /* CSV header is id, x, y, matches */
+  width = 3; /* CSV header is x, y, matches */
   uint8_t r = read_csv_into_array(measurements, filename, cb_write_to_position_arr);
 
   /* int i; */
@@ -235,7 +236,7 @@ uint8_t read_test_histograms_from_csv(int *histograms, char *filename) {
 
   max_lines = TREXTON_NUM_HISTOGRAMS;
   width = 2; /* CSV header is x, y */
-  uint8_t r = read_csv_into_array(measurements, filename, cb_write_to_position_arr);
+  uint8_t r = read_csv_into_array(measurements, filename, cb_write_to_optitrack_position_arr);
 
   return r;
 

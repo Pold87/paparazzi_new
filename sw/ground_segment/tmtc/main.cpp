@@ -19,8 +19,8 @@ void on_position_estimate(IvyClientPtr app, void *user_data, int argc, char *arg
         printf("%s", argv[0]);
     } else {
 
-        printf("id:%s x_trexton:%s y_trexton: %s x_optitrack: %s, y_optitrack: %s, entropy: %s, x_uncertainty: %s, y_uncertainty: %s\n",
-               argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
+        //printf("id:%s x_trexton:%s y_trexton: %s x_optitrack: %s, y_optitrack: %s, entropy: %s, x_uncertainty: %s, y_uncertainty: %s\n",
+         //      argv[0], argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]);
 
         /* Calculate Euclidean distance  */
 
@@ -40,8 +40,8 @@ void on_position_estimate(IvyClientPtr app, void *user_data, int argc, char *arg
         for (int h = 0; h < NUM_HISTS; ++h) {
             QString hVal = argv[8 + h];
             Qhists[h] = hVal.toDouble();
-            printf("%s -- %f ", argv[8 + h], Qhists[h]);
-            printf("\n");
+            //printf("%s -- %f ", argv[8 + h], Qhists[h]);
+            //printf("\n");
         }
 
         w->updateCoords(x_trexton, y_trexton, x_optitrack, y_optitrack,

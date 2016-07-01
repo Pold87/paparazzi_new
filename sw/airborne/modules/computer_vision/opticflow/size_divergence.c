@@ -53,6 +53,7 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
   int n_elements;
   unsigned int i, j;
 
+  // TODO: if count!/(2!*count-2!) lower than n_samples, do full sampling
   if (count < 2) {
     return NO_DIV;
   }
@@ -67,13 +68,13 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
     for (i = 0; i < count; i++) {
       for (j = i + 1; j < count; j++) {
         // distance in previous image:
-        dx = vectors[i].pos.x - vectors[j].pos.x;
-        dy = vectors[i].pos.y - vectors[j].pos.y;
+        dx = (float)vectors[i].pos.x - (float)vectors[j].pos.x;
+        dy = (float)vectors[i].pos.y - (float)vectors[j].pos.y;
         distance_1 = sqrt(dx * dx + dy * dy);
 
         // distance in current image:
-        dx = vectors[i].pos.x + vectors[i].flow_x - vectors[j].pos.x - vectors[j].flow_x;
-        dy = vectors[i].pos.y + vectors[i].flow_y - vectors[j].pos.y - vectors[j].flow_y;
+        dx = (float)vectors[i].pos.x + (float)vectors[i].flow_x - (float)vectors[j].pos.x - (float)vectors[j].flow_x;
+        dy = (float)vectors[i].pos.y + (float)vectors[i].flow_y - (float)vectors[j].pos.y - (float)vectors[j].flow_y;
         distance_2 = sqrt(dx * dx + dy * dy);
 
         // calculate divergence for this sample:
@@ -102,22 +103,22 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
       }
 
       // distance in previous image:
-      dx = vectors[i].pos.x - vectors[j].pos.x;
-      dy = vectors[i].pos.y - vectors[j].pos.y;
+      dx = (float)vectors[i].pos.x - (float)vectors[j].pos.x;
+      dy = (float)vectors[i].pos.y - (float)vectors[j].pos.y;
       distance_1 = sqrt(dx * dx + dy * dy);
 
       // distance in current image:
-      dx = vectors[i].pos.x + vectors[i].flow_x - vectors[j].pos.x - vectors[j].flow_x;
-      dy = vectors[i].pos.y + vectors[i].flow_y - vectors[j].pos.y - vectors[j].flow_y;
+      dx = (float)vectors[i].pos.x + (float)vectors[i].flow_x - (float)vectors[j].pos.x - (float)vectors[j].flow_x;
+      dy = (float)vectors[i].pos.y + (float)vectors[i].flow_y - (float)vectors[j].pos.y - (float)vectors[j].flow_y;
       distance_2 = sqrt(dx * dx + dy * dy);
 
+          
       // calculate divergence for this sample:
       divs[sample] = (distance_2 - distance_1) / distance_1;
     }
 
     // calculate the mean divergence:
     mean_divergence = get_mean(divs, n_samples);
-
     // free the memory of divs:
     free(divs);
   }
@@ -142,5 +143,4 @@ float get_mean(float *numbers, int n_elements)
   mean /= n_elements;
   return mean;
 }
-
 

@@ -45,11 +45,15 @@ struct measurement linear_regression_prediction(int texton_histogram[]);
 /* Send texton distribution and positions to ground station for live evaluation */
 //static void send_trexton_position(struct transport_tx *trans, struct link_device *dev);
 extern void trexton_init(void);
-extern uint8_t isInTargetPos(uint8_t wp_id);
+//extern uint8_t isInTargetPos(uint8_t wp_id);
+extern uint8_t isInTargetPos(void);
 extern uint8_t isCertain(void);
 
 // settings
 extern uint8_t use_optitrack;
 extern uint8_t save_histogram;
+extern uint8_t trexton_save_img;
+extern uint8_t trexton_save_img_and_histogram;
+
 
 #endif
