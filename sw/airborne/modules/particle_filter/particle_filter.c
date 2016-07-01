@@ -18,6 +18,9 @@ int informed_prior = 0;
 int global_k = 0;
 FILE *gnuplot;
 
+static double process_noise_x;
+static double process_noise_y;
+
 void init_particles(struct particle particles[N]){
 
   srand(time(NULL)); /* Set random seed */
@@ -123,7 +126,8 @@ double array_max(double arr[], int size){
 }
 
 
-void resampling_wheel(struct particle ps[], struct particle res[], double weights[], int samples) {
+/* Returns total weight */
+double resampling_wheel(struct particle ps[], struct particle res[], double weights[], int samples) {
 
     /* p: particles */
     /* w: weights */
@@ -135,6 +139,8 @@ void resampling_wheel(struct particle ps[], struct particle res[], double weight
   double mw = array_max(weights, samples);
   /* printf("MAX IS %f\n", mw); */
 
+  double total = 0;
+  
   int i;
   for (i = 0; i < N; i++) {
     /* printf("[resampling wheel] weights: %f\n", weights[i]); */
@@ -148,7 +154,10 @@ void resampling_wheel(struct particle ps[], struct particle res[], double weight
     /* printf("idx outside is %d\n", idx); */
     /* printf("ps[ids] outside is %f\n", ps[idx].x); */
     res[i] = ps[idx];
+    total += res[i].w;
   }
+
+  return total;
 }
 
 
@@ -157,15 +166,12 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
   double w[N]; /* The weights of particles */
 
-  double process_noise_x;
-  double process_noise_y;
-
   if (use_flow) {
     process_noise_x = 10;
     process_noise_y = 10;
   } else {
-    process_noise_x = 10;
-    process_noise_y = 10;
+    process_noise_x = 15;
+    process_noise_y = 15;
   }
 
   double measurement_noise_x;
@@ -179,8 +185,8 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
   } else {
 
-    measurement_noise_x = 80;
-    measurement_noise_y = 80;
+    measurement_noise_x = 100;
+    measurement_noise_y = 100;
   }
 
 
@@ -266,13 +272,7 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
   /* Importance resampling: (iterate over all particles) */
   struct particle res[N];
-  resampling_wheel(xs, res, w, N);
-
-  double total = 0;
-  for (i = 0; i < N; i++) {
-    xs[i] = res[i];
-    total += xs[i].w;
-  }
+  double total = resampling_wheel(xs, res, w, N);
 
   /* Normalize weights (should be 1!) */
   for (i = 0; i < N; i++) {
@@ -304,9 +304,6 @@ struct particle weighted_average(struct particle ps[], int size) {
 struct particle map_estimate(struct particle ps[], int size) {
 
   int i, j;
-
-  int process_noise_x = 10;
-  int process_noise_y = 10;
 
   double t_max;
   int t_argmax;

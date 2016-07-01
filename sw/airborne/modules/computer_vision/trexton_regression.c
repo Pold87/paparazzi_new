@@ -46,9 +46,10 @@ uint8_t predict = TREXTON_PREDICT;
 //uint8_t use_flow = TREXTON_USE_FLOW;
 uint8_t use_flow = 0;
 //uint8_t evaluate = TREXTON_EVALUATE;
-uint8_t evaluate = 0;
+uint8_t evaluate = 1;
 uint8_t use_particle_filter = 1; // Use particle filter or plain kNN predictions
 uint8_t use_optitrack = TREXTON_USE_OPTITRACK;
+//uint8_t use_optitrack = 1;
 uint8_t trexton_save_img_and_histogram = TREXTON_SAVE_IMG_AND_HISTOGRAM;
 uint8_t trexton_save_img = TREXTON_SAVE_IMG;
 
@@ -76,21 +77,39 @@ struct measurement flow; /* Optical flow result */
 struct measurement pos[TREXTON_K]; /* Estimates of kNN */
 struct particle var; /* Variance of particles */
 static int image_num = 0;
-int targetPos_X = 450;
-int targetPos_Y = 300;
-int accuracy = 100;
-int16_t global_ground_truth_x = 0;
-int16_t global_ground_truth_y = 0;
+static int image_tot = 0;
+
+/* Landing sign */
+//int targetPos_X = 242;
+//int targetPos_Y = 84;
+
+/* Red magazine */
+//int targetPos_X = 424;
+//int targetPos_Y = 504;
+
+/* Other corner */
+int targetPos_X = 59;
+int targetPos_Y = 392;
+
+
+int accuracy = 70;
+float global_ground_truth_x = 0;
+float global_ground_truth_y = 0;
 int closest = 2000; // For target landing: what was the closest position to the goal
-float tolerated_x_dev = 30.0;
-float tolerated_y_dev = 30.0;
+float tolerated_x_dev = 80.0;
+float tolerated_y_dev = 80.0;
 
 /* File pointers for saving predictions */
 static FILE *fp_predictions = NULL;
+static FILE *fp_ground_truth = NULL;
 static FILE *fp_particle_filter = NULL;
 static FILE *fp_edge = NULL;
 static FILE *fp_hist = NULL; // Histograms saved during flight
 static FILE *fp_pos = NULL; // Positions saved during flight
+
+
+static int opti_offset_x = 199;
+static int opti_offset_y = 729;
 
 /* Others */
 static struct UdpSocket video_sock; /* UDP socket for sending RTP video */
@@ -100,7 +119,8 @@ static void save_predictions(void);
 void send_video(struct image_t* img);
 uint8_t isCertain(void);
 static void save_img_to_uav(struct image_t *img);
-static void opticflow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, uint8_t quality, float dist);
+//static void opticflow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, uint8_t quality, float dist);
+static void opticflow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, float vel_body_x, float vel_body_y, float dist, float noise);
 
 /**
  * Main function of treXton (texton regression) that estimates a UAV's position based on texton distributions
@@ -141,7 +161,7 @@ struct image_t *trexton_func(struct image_t *img) {
      /* Save positions */
      struct NedCoor_i *ned = stateGetPositionNed_i();
      fp_pos = fopen("positions.csv", "a");
-     fprintf(fp_pos, "%d,%d\n", ned->x, ned->y);
+     fprintf(fp_pos, "%d,%d,%d\n", ned->x, ned->y, 100);
      fclose(fp_pos);
 
      /* Save histograms */
@@ -176,12 +196,6 @@ struct image_t *trexton_func(struct image_t *img) {
        if (use_flow) {
 	 particle_filter(particles, pos, &flow, use_variance, 1, k);
 	 printf("Flow is: x:%f y:%f\n", flow.x, flow.y);
-	 if (evaluate) {
-	   /* Set global variables */
-	   //    global_ground_truth_x = all_test_positions[image_num].x;
-	   //    global_ground_truth_y = all_test_positions[image_num].y;
-	   save_predictions();
-	 }
 	 flow.x = 0;
 	 flow.y = 0;
        } else {
@@ -189,10 +203,11 @@ struct image_t *trexton_func(struct image_t *img) {
        }
      
         /* TODO: compare weighted average and MAP estimate */
-        struct particle avg = weighted_average(particles, N);
+        //struct particle avg = weighted_average(particles, N);
 
-        var = calc_uncertainty(particles, avg, N);
+        //var = calc_uncertainty(particles, avg, N);
         p_forward = map_estimate(particles, N);
+	//p_forward = avg;
         printf("Particle filter: %f,%f\n", p_forward.x, p_forward.y);
 
      }
@@ -208,6 +223,18 @@ struct image_t *trexton_func(struct image_t *img) {
 
   current_test_histogram++;
 
+  /* Get Optitrack positions */
+  struct NedCoor_i *ned = stateGetPositionNed_i();
+  printf("\nOPTITRACK is: x: %d y: %d\n", ned->x + 199, ned->y + 729);
+
+  if (evaluate) {
+    /* Set global variables */
+    //    global_ground_truth_x = all_test_positions[image_num].x;
+    //    global_ground_truth_y = all_test_positions[image_num].y;
+    save_predictions();
+  }
+
+  image_tot++;
   return img;
 }
 
@@ -333,15 +360,19 @@ void send_video(struct image_t* img) {
 
 /* Save the predictions to files (for evaluating them) */
 void save_predictions(void) {
+  struct NedCoor_i *ned = stateGetPositionNed_i();
   //fp_predictions = fopen("predictions.csv", "a");
-   //fp_particle_filter = fopen("particle_filter_preds.csv", "a");
-   fp_edge = fopen("edgeflow_diff.csv", "a");
-   fprintf(fp_edge, "%f,%f\n", flow.x, flow.y);
-   //fprintf(fp_particle_filter, "%f,%f\n", p_forward.x, p_forward.y);
+   fp_particle_filter = fopen("particle_filter_preds.csv", "a");
+   fp_ground_truth = fopen("optitrack_preds.csv", "a");
+   //fp_edge = fopen("edgeflow_diff.csv", "a");
+   //fprintf(fp_edge, "%f,%f\n", flow.x, flow.y);
+   fprintf(fp_particle_filter, "%d,%f,%f\n", image_num, p_forward.x, p_forward.y);
+   fprintf(fp_ground_truth, "%d,%f,%f\n", image_num, ned->x + + ((float) opti_offset_x), ned->y + + ((float) opti_offset_y));
    //fprintf(fp_predictions, "%f,%f\n", pos[0].x, pos[0].y);
    //fclose(fp_predictions);
-   //fclose(fp_particle_filter);
-   fclose(fp_edge);
+   fclose(fp_particle_filter);
+   fclose(fp_ground_truth);
+   //fclose(fp_edge);
 }
 
 
@@ -349,16 +380,19 @@ void save_predictions(void) {
 void trexton_init(void)
 {
 
-  AbiBindMsgOPTICAL_FLOW(OPTICFLOW_ID, &opticflow_ev, opticflow_cb);
+  var.x = 40;
+  var.y = 40;
+  
+  AbiBindMsgVELOCITY_ESTIMATE(OPTICFLOW_ID, &opticflow_ev, opticflow_cb);
 
   printf("treXton init\n");
 
   /* Remove predictions file */
-  remove("particle_filter_preds.csv");
-  remove("edgeflow_diff.csv");
-  remove("knn.csv");
+  //remove("particle_filter_preds.csv");
+  //remove("edgeflow_diff.csv");
+  //remove("knn.csv");
   //remove("histograms_flight.csv");
-  remove("texton_img.csv");
+  //remove("texton_img.csv");
   
   /* if (!predict) */
   /*   remove("positions.csv"); */
@@ -424,16 +458,30 @@ static void save_img_to_uav(struct image_t *img) {
 }
 
 
-static void opticflow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, uint8_t quality, float dist)
+/* static void opticflow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, uint8_t quality, float dist) */
+/* { */
+/*   printf("CALLBACK !!\n"); */
+/*   flow.x = ((float) flow_x) / 1000.0; */
+/*   flow.y = ((float) flow_y) / 1000.0; */
+
+/*   /\* flow.x = ((float) vel_body_x) / 1.0; *\/ */
+/*   /\* flow.y = ((float) vel_body_y) / 1.0;  *\/ */
+/* } */
+
+static void opticflow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, float vel_body_x, float vel_body_y, float dist, float noise)
 {
   printf("CALLBACK !!\n");
-  flow.x = ((float) flow_x * 7) / 1000.0;
-  flow.y = ((float) flow_y * 7) / 1000.0;
+  flow.x = vel_body_x;
+  flow.y = vel_body_y;
 
+  /* flow.x = ((float) vel_body_x) / 1.0; */
+  /* flow.y = ((float) vel_body_y) / 1.0;  */
 }
 
+
 static void send_trexton_position(struct transport_tx *trans, struct link_device *dev) {
-   //struct NedCoor_i *ned = stateGetPositionNed_i();
+
+  struct NedCoor_i *ned = stateGetPositionNed_i();
 
    /* For using Optitrack or the simulator */
    /* pprz_msg_send_TREXTON(trans, dev, AC_ID, &global_x, &global_y, &ned->x, &ned->y, &entropy, &uncertainty_x, &uncertainty_y); */
@@ -444,6 +492,10 @@ static void send_trexton_position(struct transport_tx *trans, struct link_device
    float global_x = p_forward.x;
    float global_y = p_forward.y;
 
+   global_ground_truth_x = ((float) ned->x) + ((float) opti_offset_x);
+   global_ground_truth_y = ((float) ned->y) + ((float) opti_offset_y);
+     
+   
    //float global_x = pos[0].x;
    //float global_y = pos[0].y;
 

@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="0.5" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="0.5">
+<flight_plan alt="0.7" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="0.7">
   <header>
 #include "autopilot.h"
 </header>
@@ -15,10 +15,11 @@
     <waypoint lat="51.9906409" lon="4.3767226" name="FA3"/>
     <waypoint lat="51.9906737" lon="4.3768074" name="FA4"/>
 
+    
     <waypoint name="t0" x="0.0" y="0.0"/>
-    <waypoint name="t1" x="-1.0" y="1.0"/>
-    <waypoint name="t2" x="-1.5" y="1.0"/>
-    <waypoint name="t3" x="-0.5" y="0.0"/>
+    <waypoint name="t1" x="-1.5" y="1.0"/>
+    <waypoint name="t2" x="-2.5" y="0.5"/>
+    <waypoint name="t3" x="-1.5" y="-0.5"/>
 
     <waypoint name="_tar0" x="0.0" y="0.0"/>
     <waypoint name="_tar1" x="0.0" y="0.5"/>
@@ -70,7 +71,14 @@
       <stay wp="t0"/>
     </block>
     <block name="stay_t0">
+      <!-- <exception cond="isInTargetPos() && isCertain()" deroute="land here"/> -->
       <stay wp="t0"/>
+    </block>
+    <block name="stay_t1">
+      <stay wp="t1"/>
+    </block>
+    <block name="stay_t2">
+      <stay wp="t2"/>
     </block>
     <block name="stay_t3">
       <stay wp="t3"/>
@@ -81,7 +89,7 @@
       <!-- Perform target landing, if target region is reached  -->
       <!-- <exception cond="isInTargetPos(WP_LANDING)" deroute="land here"/> -->
       <!-- Alternative, if confidence should be taken into account -->
-      <!-- <exception cond="isInTargetPos(WP_LANDING) && isCertain()" deroute="land here"/> -->
+      <!-- <exception cond="isInTargetPos() && isCertain()" deroute="land here"/> -->
       <go from="t0" hmode="route" wp="t1"/>
       <stay until="stage_time>5" wp="t1"/>
       <go wp="t2" hmode="route"/>
@@ -90,10 +98,23 @@
       <stay until="stage_time>5" wp="t3"/>
       <go wp="t0" hmode="route"/>
       <deroute block="stay_t0"/>
-
     </block>
-
-
+    <block name="test_landing">
+      <!-- <path wpts="t1, t2, t3" hmode="route"/> -->
+      <!-- <exception cond="InsideTarget_Pos(GetPosX(), GetPosY())" deroute="land here"/> -->
+      <!-- Perform target landing, if target region is reached  -->
+      <!-- <exception cond="isInTargetPos(WP_LANDING)" deroute="land here"/> -->
+      <!-- Alternative, if confidence should be taken into account -->
+      <!-- <exception cond="isInTargetPos() && isCertain()" deroute="land here"/> -->
+      <go from="t0" hmode="route" wp="t1"/>
+      <stay until="stage_time>2" wp="t1"/>
+      <go wp="t2" hmode="route"/>
+      <stay until="stage_time>2" wp="t2"/>
+      <go wp="t3" hmode="route"/>
+      <stay until="stage_time>2" wp="t3"/>
+      <go wp="t0" hmode="route"/>
+      <deroute block="stay_t0"/>
+    </block>
     <!-- <block name="create_test_set_square"> -->
     <!--   <go from="t0" hmode="route" wp="t1"/> -->
     <!--   <go from="t1" hmode="route" wp="t2"/> -->

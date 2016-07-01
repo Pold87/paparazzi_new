@@ -84,7 +84,6 @@
 
     <file name="trexton_regression.c"/>
     <file name="textons.c"/>
-    <file name="opticflow_module.c"/>
     <file name="texton_helpers.c"/>
     <file name="image_conversions.c"/>
 
@@ -102,11 +101,6 @@
     <define name="modules/particle_filter/" type="include"/> 
     <file name="particle_filter.c" dir="modules/particle_filter/"/>
     <file name="random_number_gen.c" dir="modules/particle_filter/"/>
-
-    <define name="modules/computer_vision/opticflow" type="include"/> 
-    <file name="size_divergence.c" dir="modules/computer_vision/opticflow"/>
-    <file name="opticflow_calculator.c" dir="modules/computer_vision/opticflow"/>
-    <file name="linear_flow_fit.c" dir="modules/computer_vision/opticflow"/>
 
     <define name="math" type="include"/> 
     <file name="pprz_matrix_decomp_float.c" dir="math"/>

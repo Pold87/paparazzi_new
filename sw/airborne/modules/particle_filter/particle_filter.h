@@ -1,7 +1,7 @@
 #ifndef PARTICLE_FILTER_H
 #define PARTICLE_FILTER_H
 
-#define N 200 /* Total number of particles */
+#define N 140 /* Total number of particles */
 #define M 200 /* Number of fake measurements */
 
 struct particle {
@@ -50,7 +50,7 @@ struct sift {
 double normpdf(double x, double mu, double sigma);
 
 double array_max(double arr[], int size);
-void resampling_wheel(struct particle ps[], struct particle res[], double weights[], int samples);
+double resampling_wheel(struct particle ps[], struct particle res[], double weights[], int samples);
 
 void init_particles(struct particle particles[N]);
 /* void particle_filter(struct particle particles[N], struct measurement *z, struct measurement *flow, int use_variance, int use_flow); */
