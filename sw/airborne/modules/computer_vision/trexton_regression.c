@@ -199,11 +199,25 @@ struct image_t *trexton_func(struct image_t *img) {
 	 flow.x = 0;
 	 flow.y = 0;
        } else {
-	 particle_filter(particles, pos, &flow, use_variance, 0, k);
+   particle_filter(particles, pos, &flow, use_variance, 0, k);
+           int i;
+        printf("\n");
+        for (i = 0; i < N; i++) {
+           printf("particles: %f, %f", particles[i].x, particles[i].y);
+        }
        }
      
         /* TODO: compare weighted average and MAP estimate */
-        //struct particle avg = weighted_average(particles, N);
+        /*p_forward = weighted_average(particles, N);*/
+
+        static FILE *fp_particles = NULL;
+        char fp_particles_name[256];
+        sprintf(fp_particles_name, "particles/particles_%05d.csv", image_tot);
+        fp_particles = fopen(fp_particles_name, "w");
+
+        for (int a = 0; a < N; a++) {
+           fprintf(fp_particles, "%f,%f\n", particles[a].x, particles[a].y);
+        }
 
         //var = calc_uncertainty(particles, avg, N);
         p_forward = map_estimate(particles, N);
@@ -361,15 +375,15 @@ void send_video(struct image_t* img) {
 /* Save the predictions to files (for evaluating them) */
 void save_predictions(void) {
   struct NedCoor_i *ned = stateGetPositionNed_i();
-  //fp_predictions = fopen("predictions.csv", "a");
+   fp_predictions = fopen("knn.csv", "a");
    fp_particle_filter = fopen("particle_filter_preds.csv", "a");
    fp_ground_truth = fopen("optitrack_preds.csv", "a");
    //fp_edge = fopen("edgeflow_diff.csv", "a");
    //fprintf(fp_edge, "%f,%f\n", flow.x, flow.y);
-   fprintf(fp_particle_filter, "%d,%f,%f\n", image_num, p_forward.x, p_forward.y);
-   fprintf(fp_ground_truth, "%d,%f,%f\n", image_num, ned->x + + ((float) opti_offset_x), ned->y + + ((float) opti_offset_y));
-   //fprintf(fp_predictions, "%f,%f\n", pos[0].x, pos[0].y);
-   //fclose(fp_predictions);
+   fprintf(fp_particle_filter, "%d,%f,%f\n", image_tot, p_forward.x, p_forward.y);
+   fprintf(fp_ground_truth, "%d,%f,%f\n", image_tot, ned->x + + ((float) opti_offset_x), ned->y + + ((float) opti_offset_y));
+   fprintf(fp_predictions, "%f,%f\n", pos[0].x, pos[0].y);
+   fclose(fp_predictions);
    fclose(fp_particle_filter);
    fclose(fp_ground_truth);
    //fclose(fp_edge);

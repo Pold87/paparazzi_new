@@ -38,7 +38,8 @@
     <load name="geo_mag.xml"/>
     <load name="cv_textons.xml">
       <define name="TEXTONS_LOAD_DICTIONARY" value="1"/>
-      <define name="TEXTONS_DICTIONARY_PATH" value="/data/ftp/internal_000/paparazzi"/>
+      <!-- <define name="TEXTONS_DICTIONARY_PATH" value="/data/ftp/internal_000/paparazzi"/> -->
+      <define name="TEXTONS_DICTIONARY_PATH" value="/home/pold/paparazzi"/>
       <define name="TEXTONS_DICTIONARY_NUMBER" value="0"/>
       <define name="TEXTONS_N_SAMPLES_IMAGE" value="400"/>
       <define name="TEXTONS_N_SAMPLES" value="400"/>
@@ -48,7 +49,7 @@
     <load name="air_data.xml"/>
     <load name="send_imu_mag_current.xml"/>
     <load name="trexton.xml">
-      <define name="TREXTON_K" value="7"/>
+      <define name="TREXTON_K" value="5"/>
       <define name="TREXTON_PREDICT" value="1"/>
       <define name="TREXTON_NUM_HISTOGRAMS" value="813"/>
       <define name="TREXTON_VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>

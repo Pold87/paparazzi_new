@@ -170,8 +170,8 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
     process_noise_x = 10;
     process_noise_y = 10;
   } else {
-    process_noise_x = 15;
-    process_noise_y = 15;
+    process_noise_x = 25.0;
+    process_noise_y = 25.0;
   }
 
   double measurement_noise_x;
@@ -246,16 +246,16 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
       double phi;
       for (pred = 0; pred < num_predictions; pred++) {
 
-	phi = phis[pred];
+         phi = phis[pred];
 
-	  /* TODO: instead of fixed measurement noise use confidence */
-		p_x = normpdf(z[pred].x, xs[i].x, measurement_noise_x);
-		p_y = normpdf(z[pred].y, xs[i].y, measurement_noise_y);
+         /* TODO: instead of fixed measurement noise use confidence */
+         //p_x = normpdf(z[pred].x, xs[i].x, measurement_noise_x);
+         //p_y = normpdf(z[pred].y, xs[i].y, measurement_noise_y);
 	
-	//p_x = normpdf(xs[i].x, z[pred].x, z[pred].dist * 1400.0);
-	//p_y = normpdf(xs[i].y, z[pred].y, z[pred].dist * 1400.0);
+         p_x = normpdf(xs[i].x, z[pred].x, z[pred].dist * 1400.0);
+         p_y = normpdf(xs[i].y, z[pred].y, z[pred].dist * 1400.0);
 
-	total_likelihood += phi * p_x * p_y;
+         total_likelihood += phi * p_x * p_y;
 
       }
 
@@ -273,6 +273,12 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
   /* Importance resampling: (iterate over all particles) */
   struct particle res[N];
   double total = resampling_wheel(xs, res, w, N);
+
+  /* Copy results */
+  for (i = 0; i < N; i++) {
+//     printf("xs: %f, %f;  res: %f, %f", xs[i].x, xs[i].y, res[i].x, res[i].y);
+     xs[i] = res[i];
+  }
 
   /* Normalize weights (should be 1!) */
   for (i = 0; i < N; i++) {

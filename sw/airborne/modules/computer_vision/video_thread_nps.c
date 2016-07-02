@@ -39,7 +39,7 @@ struct video_thread_t video_thread = {
   .shot_number = 0
 };
 
-int i = 400;
+int i = 0;
 
 int use_yuv = 1;
 
@@ -49,7 +49,7 @@ void video_thread_periodic(void)
 {
 
   /* TODO: use setting variable here */
-  char image_folder[] = "/home/pold/from_bebop/png/";
+  char image_folder[] = "/home/pold/Documents/MASTER_THESIS/final_evaluation/fast_flight/";
 
     struct image_t img, yuv_img;
     image_create(&img, 640, 480, IMAGE_RGB);
