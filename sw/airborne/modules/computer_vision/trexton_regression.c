@@ -108,6 +108,13 @@ static FILE *fp_hist = NULL; // Histograms saved during flight
 static FILE *fp_pos = NULL; // Positions saved during flight
 
 
+static FILE *fp_knn1 = NULL; // nearest neighbor
+static FILE *fp_knn2 = NULL; // second nearest neighbor
+static FILE *fp_knn3 = NULL; // ...
+static FILE *fp_knn4 = NULL; // ...
+static FILE *fp_knn5 = NULL; // ...
+
+
 static int opti_offset_x = 199;
 static int opti_offset_y = 729;
 
@@ -149,7 +156,7 @@ struct image_t *trexton_func(struct image_t *img) {
    for (u = 0; u < 20; u++) {
      texton_dist_copy[u] =  texton_distribution[u];
    }
-   
+
    /* Save img to path on UAV */
    if (trexton_save_img || trexton_save_img_and_histogram) {
      save_img_to_uav(img);
@@ -184,20 +191,20 @@ struct image_t *trexton_func(struct image_t *img) {
         /* For textons */
         predict_position(pos, texton_distribution, TREXTON_NUM_TEXTONS * TREXTON_CHANNELS);
 
-	printf("kNN: %f,%f\n", pos[0].x, pos[0].y);
-	
+  printf("kNN: %f,%f\n", pos[0].x, pos[0].y);
+
      }
- 
+
      if (use_particle_filter) {
-     
+
        /* Use optical flow for particle filter updates */
        /* TODO: use opticalflow_result here */
 
        if (use_flow) {
-	 particle_filter(particles, pos, &flow, use_variance, 1, k);
-	 printf("Flow is: x:%f y:%f\n", flow.x, flow.y);
-	 flow.x = 0;
-	 flow.y = 0;
+   particle_filter(particles, pos, &flow, use_variance, 1, k);
+   printf("Flow is: x:%f y:%f\n", flow.x, flow.y);
+   flow.x = 0;
+   flow.y = 0;
        } else {
    particle_filter(particles, pos, &flow, use_variance, 0, k);
            int i;
@@ -206,7 +213,7 @@ struct image_t *trexton_func(struct image_t *img) {
            printf("particles: %f, %f", particles[i].x, particles[i].y);
         }
        }
-     
+
         /* TODO: compare weighted average and MAP estimate */
         /*p_forward = weighted_average(particles, N);*/
 
@@ -221,12 +228,12 @@ struct image_t *trexton_func(struct image_t *img) {
 
         //var = calc_uncertainty(particles, avg, N);
         p_forward = map_estimate(particles, N);
-	//p_forward = avg;
+  //p_forward = avg;
         printf("Particle filter: %f,%f\n", p_forward.x, p_forward.y);
 
      }
   }
-  
+
   // Check for landing (DEBUG)
   uint8_t do_landing = isInTargetPos();
   uint8_t is_certain = isCertain();
@@ -322,7 +329,7 @@ uint8_t isInTargetPos(void)
 
   /* int dist_x = targetPos_X_i - pos[0].x; */
   /* int dist_y = targetPos_Y_i - pos[0].y; */
-  
+
   int d = sqrt(dist_x * dist_x + dist_y * dist_y);
 
   uint8_t inside = d < accuracy;
@@ -375,17 +382,44 @@ void send_video(struct image_t* img) {
 /* Save the predictions to files (for evaluating them) */
 void save_predictions(void) {
   struct NedCoor_i *ned = stateGetPositionNed_i();
-   fp_predictions = fopen("knn.csv", "a");
+
+  /* Best unfiltered prediction */
+  fp_predictions = fopen("knn.csv", "a");
+  fprintf(fp_predictions, "%f,%f\n", pos[0].x, pos[0].y);
+  fclose(fp_predictions);
+
+  /* /\* Predictions of the nearest neighbors with their distance *\/ */
+  /* fp_knn1 = fopen("knn1.csv", "a"); */
+  /* fp_knn2 = fopen("knn2.csv", "a"); */
+  /* fp_knn3 = fopen("knn3.csv", "a"); */
+  /* fp_knn4 = fopen("knn4.csv", "a"); */
+  /* fp_knn5 = fopen("knn5.csv", "a"); */
+
+  /* fprintf(fp_knn1, "%f,%f,%f\n", pos[0].x, pos[0].y, pos[0].dist); */
+  /* fprintf(fp_knn2, "%f,%f,%f\n", pos[1].x, pos[1].y, pos[1].dist); */
+  /* fprintf(fp_knn3, "%f,%f,%f\n", pos[2].x, pos[2].y, pos[2].dist); */
+  /* fprintf(fp_knn4, "%f,%f,%f\n", pos[3].x, pos[3].y, pos[3].dist); */
+  /* fprintf(fp_knn5, "%f,%f,%f\n", pos[4].x, pos[4].y, pos[4].dist); */
+
+  /* fclose(fp_knn1); */
+  /* fclose(fp_knn2); */
+  /* fclose(fp_knn3); */
+  /* fclose(fp_knn4); */
+  /* fclose(fp_knn5); */
+
+   /* Filtered predictions */
    fp_particle_filter = fopen("particle_filter_preds.csv", "a");
+   fprintf(fp_particle_filter, "%d,%f,%f\n", image_tot, p_forward.x, p_forward.y);
+   fclose(fp_particle_filter);
+
+   /* Ground truth of optitrack */
    fp_ground_truth = fopen("optitrack_preds.csv", "a");
+   fprintf(fp_ground_truth, "%d,%f,%f\n", image_tot, ned->x + + ((float) opti_offset_x), ned->y + + ((float) opti_offset_y));
+   fclose(fp_ground_truth);
+
+   /* Save opticalfow */
    //fp_edge = fopen("edgeflow_diff.csv", "a");
    //fprintf(fp_edge, "%f,%f\n", flow.x, flow.y);
-   fprintf(fp_particle_filter, "%d,%f,%f\n", image_tot, p_forward.x, p_forward.y);
-   fprintf(fp_ground_truth, "%d,%f,%f\n", image_tot, ned->x + + ((float) opti_offset_x), ned->y + + ((float) opti_offset_y));
-   fprintf(fp_predictions, "%f,%f\n", pos[0].x, pos[0].y);
-   fclose(fp_predictions);
-   fclose(fp_particle_filter);
-   fclose(fp_ground_truth);
    //fclose(fp_edge);
 }
 
@@ -396,7 +430,7 @@ void trexton_init(void)
 
   var.x = 40;
   var.y = 40;
-  
+
   AbiBindMsgVELOCITY_ESTIMATE(OPTICFLOW_ID, &opticflow_ev, opticflow_cb);
 
   printf("treXton init\n");
@@ -407,7 +441,7 @@ void trexton_init(void)
   //remove("knn.csv");
   //remove("histograms_flight.csv");
   //remove("texton_img.csv");
-  
+
   /* if (!predict) */
   /*   remove("positions.csv"); */
 
@@ -423,7 +457,7 @@ if (predict) {
      }
 
 
-     if (use_optitrack) 
+     if (use_optitrack)
        /* Read x, y, position from Optitraick */
        read_optitrack_positions_from_csv(all_positions, position_filename);
      else
@@ -444,7 +478,7 @@ if (predict) {
 
 
 static void save_img_to_uav(struct image_t *img) {
-  
+
   // Declare storage for image location
   char save_name[128];
 
@@ -508,8 +542,8 @@ static void send_trexton_position(struct transport_tx *trans, struct link_device
 
    global_ground_truth_x = ((float) ned->x) + ((float) opti_offset_x);
    global_ground_truth_y = ((float) ned->y) + ((float) opti_offset_y);
-     
-   
+
+
    //float global_x = pos[0].x;
    //float global_y = pos[0].y;
 

@@ -48,25 +48,19 @@ struct sift {
  * @return Value of the normal distribution at position x
  */
 double normpdf(double x, double mu, double sigma);
-
 double array_max(double arr[], int size);
+
 double resampling_wheel(struct particle ps[], struct particle res[], double weights[], int samples);
 
 void init_particles(struct particle particles[N]);
 /* void particle_filter(struct particle particles[N], struct measurement *z, struct measurement *flow, int use_variance, int use_flow); */
 void particle_filter(struct particle xs[N], struct measurement z[], struct measurement *flow,
 		     int use_variance, int use_flow, int num_predictions);
-void particle_filter_multiple(struct particle particles[N], struct measurement *z, struct measurement *z2, int use_variance);
 void read_measurements_from_csv(struct measurement zs[], char filename[], int size);
 struct particle weighted_average(struct particle ps[], int size);
 struct particle map_estimate(struct particle ps[], int size);
-void weighted_sample(struct particle ps[], struct particle res[], double weights[], int samples);
 struct particle weight_forward_backward(struct particle p_forward, struct particle p_backward, int i, int k);
 struct particle calc_uncertainty(struct particle particles[], struct particle weighted_mean, int size);
-void init_visualize(void);
-void visualize(struct particle xs[N], struct measurement *z, struct particle *pos);
-void visualize_simple(double x, double y);
-void visualize_optitrack(int x, int y, int opti_x, int opti_y, double uncertainty);
-
+double binormpdf(double x1, double x2, double mu1, double mu2, double sigma1, double sigma2, double rho);
 
 #endif

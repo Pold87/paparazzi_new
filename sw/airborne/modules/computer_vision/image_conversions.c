@@ -4,6 +4,8 @@
 #include <math.h>
 
 /* http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1301930 */
+double fmax(double a, double b);
+double fmin(double a, double b);
 
 void YUV422toRGB(struct image_t *img_yuv, struct image_t *img_rgb){
 
@@ -175,6 +177,25 @@ void image_grayscale_standardize(struct image_t *img, struct image_t *img_standa
       printf("buf[i]: %d, means: %f sqrt %f std_buf: %f\n", buf[i], means[0], sqrt(means[3]), std_buf[pos_std-1]);
     }
    }
+}
+
+
+/* Maximum of two numbers */
+double fmax(double a, double b) {
+
+  if (a > b)
+    return a;
+  else
+    return b;
+}
+
+/* Minimum of two numbers */
+double fmin(double a, double b) {
+
+  if (a < b)
+    return a;
+  else
+    return b;
 }
 
 int clamp(int num){

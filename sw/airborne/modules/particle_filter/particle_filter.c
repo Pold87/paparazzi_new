@@ -21,6 +21,8 @@ FILE *gnuplot;
 static double process_noise_x;
 static double process_noise_y;
 
+/* Initialize particles either uniformly at random or with an informed
+ * prior, if the starting positions of the UAV is known */
 void init_particles(struct particle particles[N]){
 
   srand(time(NULL)); /* Set random seed */
@@ -30,7 +32,6 @@ void init_particles(struct particle particles[N]){
     /* Initialize with informed prior */
     if (informed_prior) {
       particles[i].x = randu(1060, 1080);
-      printf("%f", particles[i].x);
       particles[i].y = randu(275, 285);
       particles[i].w = 1;
       particles[i].prev_w = 1;
@@ -39,6 +40,7 @@ void init_particles(struct particle particles[N]){
     /* Initialize with random x, y-positions */
     else {
 
+       /* TODO: randu seems to be biased (see particle filter video) */
       particles[i].prev_x = randu(0, max_x);
       particles[i].prev_y = randu(0, max_y);
 
@@ -55,77 +57,7 @@ void init_particles(struct particle particles[N]){
 }
 
 
-double normpdf(double x, double mu, double sigma) {
-
-  double density, a;
-  static const double inv_sqrt_2pi = 0.3989422804014327;
-
-  a = (x - mu) / sigma;
-  density = inv_sqrt_2pi / sigma * exp(-0.5 * a * a);
-
-  return density;
-
-}
-
-void weighted_sample(struct particle ps[], struct particle res[], double weights[], int samples){
-
-  double sum = 0, x;
-  int i;
-  /* Calculate sum */
-  for (i = 0; i < N; i++) {
-    sum += weights[i];
-  }
-  printf("sum is %f", sum);
-
-  i = 0;
-  int m;
-  double w = weights[0];
-  struct particle v;
-  for (m = 0; m < samples; m++) {
-    x = sum * (1 - pow(randu(0, 1), (1.0 / samples)));
-    //printf("%f is\n", x);
-    sum -= x;
-    while (x > w) {
-            x -= w;
-            i += 1;
-            w = weights[i];
-      v = ps[i];
-    }
-    w -= x;
-    res[m] = v;
-  }
-}
-
-
-double fmax(double a, double b) {
-
-  if (a > b)
-    return a;
-  else
-    return b;
-}
-
-double fmin(double a, double b) {
-
-  if (a < b)
-    return a;
-  else
-    return b;
-}
-
-
-double array_max(double arr[], int size){
-
-  double m = -1;
-  int i;
-  for (i = 0; i < size; i++) {
-    if (arr[i] > m)
-      m = arr[i];
-  }
-  return m;
-}
-
-
+/* Sebastian Thrun's resampling wheel */
 /* Returns total weight */
 double resampling_wheel(struct particle ps[], struct particle res[], double weights[], int samples) {
 
@@ -134,25 +66,17 @@ double resampling_wheel(struct particle ps[], struct particle res[], double weig
     /* N: Desired number of particles */
 
   int idx = randu(0, 1) * samples;
-  /* printf("index is %d\n", idx); */
   double beta = 0.0;
   double mw = array_max(weights, samples);
-  /* printf("MAX IS %f\n", mw); */
-
   double total = 0;
-  
+
   int i;
   for (i = 0; i < N; i++) {
-    /* printf("[resampling wheel] weights: %f\n", weights[i]); */
     beta += randu(0, 1) * 2.0 * mw;
     while (beta > weights[idx]){
-      /* printf(" beta is %f\n", beta); */
-      /* printf(" weights[ifx] is %f\n", weights[idx]); */
       beta -= weights[idx];
       idx = (idx + 1) % N;
     }
-    /* printf("idx outside is %d\n", idx); */
-    /* printf("ps[ids] outside is %f\n", ps[idx].x); */
     res[i] = ps[idx];
     total += res[i].w;
   }
@@ -162,15 +86,19 @@ double resampling_wheel(struct particle ps[], struct particle res[], double weig
 
 
 void particle_filter(struct particle xs[N], struct measurement z[], struct measurement *flow,
-		     int use_variance, int use_flow, int num_predictions) {
+         int use_variance, int use_flow, int num_predictions) {
 
   double w[N]; /* The weights of particles */
+  double rho;
+
+  /* IMPORTANT REMOVE AGAIN */
+  int debug_flow = 0;
 
   if (use_flow) {
     process_noise_x = 10;
     process_noise_y = 10;
   } else {
-    process_noise_x = 25.0;
+    process_noise_x = 15.0;
     process_noise_y = 25.0;
   }
 
@@ -184,16 +112,11 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
     printf("Measurement noise x is %f", measurement_noise_x);
 
   } else {
-
-    measurement_noise_x = 100;
-    measurement_noise_y = 100;
+    measurement_noise_x = 92;
+    measurement_noise_y = 134;
+    rho = 0.0;
   }
 
-
-  /* IMPORTANT REMOVE AGAIN */
-  int debug_flow = 0;
-  
-  
   /* Obtaining new belief state (iterate over all particles) */
   int i = 0;
 
@@ -207,7 +130,7 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
     xs[i].prev_x = xs[i].x;
     xs[i].prev_y = xs[i].y;
-    
+
     if (use_flow) {
 
        updated_x = xs[i].x + flow->x;
@@ -225,50 +148,29 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
       measurement_noise_x = 200;
       measurement_noise_y = 200;
 
-    } 
+    }
 
     /* Add some random process noise */
     xs[i].x = randn(updated_x, process_noise_x);
     xs[i].y = randn(updated_y, process_noise_y);
 
     /* Calculate weight */
-    double p_x, p_y;
+    double p;
+    double total_likelihood = 0.00000001;
+    int pred;
+    for (pred = 0; pred < num_predictions; pred++) {
 
-      int pred;
-      double total_likelihood = 0.00000001;
+       p = binormpdf(xs[i].x, xs[i].y, z[pred].x, z[pred].y,
+                     measurement_noise_x, measurement_noise_y, rho);
+       total_likelihood += p;
+    }
 
-      double phis[num_predictions];
-      phis[0] = 0.4;
-      phis[1] = 0.3;
-      phis[2] = 0.2;
-      phis[3] = 0.08;
-      phis[4] = 0.02;
-      double phi;
-      for (pred = 0; pred < num_predictions; pred++) {
-
-         phi = phis[pred];
-
-         /* TODO: instead of fixed measurement noise use confidence */
-         //p_x = normpdf(z[pred].x, xs[i].x, measurement_noise_x);
-         //p_y = normpdf(z[pred].y, xs[i].y, measurement_noise_y);
-	
-         p_x = normpdf(xs[i].x, z[pred].x, z[pred].dist * 1400.0);
-         p_y = normpdf(xs[i].y, z[pred].y, z[pred].dist * 1400.0);
-
-         total_likelihood += phi * p_x * p_y;
-
-      }
-
+      /* Update particles */
       xs[i].prev_w = xs[i].w;
-
-      /* TODO: see if weight array is necessary */
-      
       w[i] = total_likelihood;
       xs[i].w = w[i]; /* Set weight of particle */
-	
-  }
 
-  
+  }
 
   /* Importance resampling: (iterate over all particles) */
   struct particle res[N];
@@ -276,17 +178,18 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
   /* Copy results */
   for (i = 0; i < N; i++) {
-//     printf("xs: %f, %f;  res: %f, %f", xs[i].x, xs[i].y, res[i].x, res[i].y);
      xs[i] = res[i];
   }
 
-  /* Normalize weights (should be 1!) */
+  /* Normalize weights such that their sum adds up to  1 */
   for (i = 0; i < N; i++) {
     xs[i].w = xs[i].w / total;
-  }  
+  }
 }
 
-
+/* Calculate the weighted average (expectation) of the particles */
+/* Returns the results as a particle with the calculated x, y
+ * position */
 struct particle weighted_average(struct particle ps[], int size) {
 
   int i;
@@ -307,6 +210,9 @@ struct particle weighted_average(struct particle ps[], int size) {
   return p;
 }
 
+/* Maximum a posteriori estimate of the x, y position using the
+ * particles */
+/* See paper MAP Estimation in Particle Filter Tracking */
 struct particle map_estimate(struct particle ps[], int size) {
 
   int i, j;
@@ -316,7 +222,6 @@ struct particle map_estimate(struct particle ps[], int size) {
   t_max = -1.0;
   t_argmax = 0;
 
-  /* See paper MAP Estimation in Particle Filter Tracking */
   for (i = 0; i < size; i++) {
 
     double s, a, b, t;
@@ -355,6 +260,7 @@ struct particle weight_forward_backward(struct particle p_forward, struct partic
 
 }
 
+/* Calculate the uncertainty of the particle filter (variance of the particles) */
 struct particle calc_uncertainty(struct particle ps[], struct particle weighted_mean, int size) {
 
   int i;
@@ -379,53 +285,48 @@ struct particle calc_uncertainty(struct particle ps[], struct particle weighted_
 
 }
 
-void init_visualize(void){
-  gnuplot = popen("gnuplot", "w");
-  fprintf(gnuplot, "set palette model RGB defined (0 'blue', 1 'green', 2 'red', 3 'yellow')\n");
-  fprintf(gnuplot, "unset colorbox\n");
-  /* fprintf(gnuplot, "set xrange[0:1280]\n"); */
-  /* fprintf(gnuplot, "set yrange[0:720]\n"); */
-  fprintf(gnuplot, "set xrange[-500:500]\n");
-  fprintf(gnuplot, "set yrange[-500:500]\n");
-}
+/* Helper functions */
 
-void visualize_simple(double x, double y) {
-    /* fprintf(gnuplot, "plot '/home/pold/Documents/Internship/draug/img/sparse_board.jpg' binary filetype=jpg with rgbimage, '-' with points pt 7 ps variable palette\n"); */
-    fprintf(gnuplot, "plot '-' with points pt 7 ps variable palette\n");
-    fprintf(gnuplot, "%f %f 4 2\n", x, y);
-    fprintf(gnuplot, "e\n");
-    fflush(gnuplot);
-    fprintf(gnuplot, "refresh;\n");
+/* Maximum value of an array with non-negative values */
+double array_max(double arr[], int size){
+
+  double m = -1;
+  int i;
+  for (i = 0; i < size; i++) {
+    if (arr[i] > m)
+      m = arr[i];
+  }
+  return m;
 }
 
 
-void visualize_optitrack(int x, int y, int opti_x, int opti_y, double uncertainty) {
-    /* fprintf(gnuplot, "plot '/home/pold/Documents/Internship/draug/img/sparse_board.jpg' binary filetype=jpg with rgbimage, '-' with points pt 7 ps variable palette\n"); */
-    fprintf(gnuplot, "set cbrange [0:1]\n");
-    fprintf(gnuplot, "set palette defined (0.0 0 0 0.5, 0.1 0 0 1, 0.2 0 0.5 1, 0.3 0 1 1, 0.4 0.5 1 0.5, 0.5 1 1 0, 0.6 1 0.5 0, 0.7 1 0 0, 0.8 0.5 0 0)\n");
-    fprintf(gnuplot, "set colorbox\n");
-    printf("color is %f", uncertainty / 1000.0);
-    fprintf(gnuplot, "plot '-' with points pt 7 ps variable palette\n");
-    fprintf(gnuplot, "%d %d 4 %f\n", x, y, uncertainty/ 1000.0);
-    fprintf(gnuplot, "%d %d 4 0.0\n", opti_x, opti_y);
-    fprintf(gnuplot, "e\n");
-    fflush(gnuplot);
-    fprintf(gnuplot, "refresh;\n");
+/* Gaussian probability density function */
+double normpdf(double x, double mu, double sigma) {
+
+  double density, a;
+  static const double inv_sqrt_2pi = 0.3989422804014327;
+
+  a = (x - mu) / sigma;
+  density = inv_sqrt_2pi / sigma * exp(-0.5 * a * a);
+
+  return density;
+
 }
 
-void visualize(struct particle particles[N], struct measurement *z, struct particle *pos)
-{
 
-    fprintf(gnuplot, "plot '/home/pold/Documents/Internship/draug/img/sparse_board.jpg' binary filetype=jpg with rgbimage, '-' with points pt 7 ps variable palette\n");
-    int j;
-    for (j = 0; j < N; j++) {
-      fprintf(gnuplot, "%f %f %f 0\n", particles[j].x, particles[j].y, particles[j].w * 10);
-      /* printf("%f %f\n", particles[j].x, particles[j].y); */
-    }
+/* Bivariate Gaussian probability density function */
+double binormpdf(double x1, double x2, double mu1, double mu2, double sigma1, double sigma2, double rho) {
 
-    fprintf(gnuplot, "%f %f 4 2\n", z->x, z->y);
-    fprintf(gnuplot, "%f %f 4 3\n", pos->x, pos->y); /* The best prediction (weighted average) */
-    fprintf(gnuplot, "e\n");
-    fflush(gnuplot);
-    fprintf(gnuplot, "refresh;\n");
+   double p;
+   double z, z1, z2, z3;
+
+   z1 = ((x1 - mu1) * (x1 - mu1)) / (sigma1 * sigma1);
+   z2 = (2 * rho * (x1 - mu1) * (x2 - mu2)) / (sigma1 * sigma2);
+   z3 = ((x2 - mu2) * (x2 - mu2)) / (sigma2  * sigma2);
+   z = z1 - z2 + z3;
+
+   p = (1 / (2 * PI * sigma1 * sigma2 * sqrt(1 - (rho * rho)))) * exp(- (z / (2 * (1 - (rho * rho)))));
+
+   return p;
+
 }
