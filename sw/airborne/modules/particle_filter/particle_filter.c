@@ -112,7 +112,8 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
     printf("Measurement noise x is %f", measurement_noise_x);
 
   } else {
-    measurement_noise_x = 92;
+     //measurement_noise_x = 92;
+    measurement_noise_x = 110;
     measurement_noise_y = 134;
     rho = 0.0;
   }

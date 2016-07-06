@@ -43,7 +43,9 @@
       <define name="TEXTONS_DICTIONARY_NUMBER" value="0"/>
       <define name="TEXTONS_N_SAMPLES_IMAGE" value="400"/>
       <define name="TEXTONS_N_SAMPLES" value="400"/>
-      <define name="TEXTONS_N_LEARNING_SAMPLES" value="1000000"/>
+      <!-- <define name="TEXTONS_N_TEXTONS" value="12"/> -->
+      
+      <define name="TEXTONS_N_LEARNING_SAMPLES" value="10000"/>
     </load>
     <!-- <load name="cv_opticflow.xml"/> -->
     <load name="air_data.xml"/>

@@ -49,7 +49,9 @@ void video_thread_periodic(void)
 {
 
   /* TODO: use setting variable here */
+  //char image_folder[] = "/home/pold/Downloads/for_pres/";
   char image_folder[] = "/home/pold/Documents/MASTER_THESIS/final_evaluation/fast_flight/";
+  //char image_folder[] = "/home/pold/from_bebop/png/";
 
     struct image_t img, yuv_img;
     image_create(&img, 640, 480, IMAGE_RGB);
