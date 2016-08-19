@@ -60,32 +60,38 @@ void cb_write_to_float_arr(void *s, size_t i, void *arr) {
 
 void cb_write_to_position_arr(void *s, size_t i, void *arr) {
 
+   /* Save in texton array */
+  unsigned char *str = s;
+
+  /* Convert string to int */
+  size_t j;
+  int acc = 0;
+  for (j = 0; j < i; j++) {
+     acc = acc * 10;
+     if (str[j] == '-')
+        continue;
+     if (str[0] == '-') {
+        acc -= str[j] - '0';
+     } else {
+        acc += str[j] - '0';
+     }
+ }
+
+
   /* Save in texton array */
   struct measurement* pos_arr = (struct measurement*) arr;
   if (max_lines > 0) {
-    
-    unsigned char *str = s;
 
-    /* Convert string to int */
-    size_t j;
-    int acc = 0;
-    for (j = 0; j < i; j++) {
-      acc = acc * 10;
-      acc += str[j] - '0';
-    }
-
-    /* printf("row is %d and col is %d", row, col); */
-    
     /* the first column has the x coordinate */
-    /* it is row - 1 because the header was skipped */
-    if (col == 0) {
-      pos_arr[row].x = acc;
-    }
-
+    if (col == 0)
+      pos_arr[row].x = (float) acc;
     /* and the second one the y coordinate */
     if (col == 1)
-      pos_arr[row].y = acc;
+      pos_arr[row].y = (float) acc;
+    if (col == 2)
+       pos_arr[row].dist = (float) acc;
   }
+  /* and the third one the number of matches  */
   col++;
 }
 
@@ -96,9 +102,8 @@ void cb_write_to_optitrack_position_arr(void *s, size_t i, void *arr) {
   if (max_lines > 0) {
     
     /* the first column has the x coordinate */
-    if (col == 0) {
+    if (col == 0)
       pos_arr[row].x = (float) atoi(s);
-    }
     /* and the second one the y coordinate */
     if (col == 1)
       pos_arr[row].y = (float) atoi(s);

@@ -102,14 +102,14 @@ uint8_t n_textons = TEXTONS_N_TEXTONS;
 uint8_t patch_size = TEXTONS_PATCH_SIZE;
 uint32_t n_learning_samples = TEXTONS_N_LEARNING_SAMPLES;
 uint32_t n_samples_image = TEXTONS_N_SAMPLES;
-//uint8_t FULL_SAMPLING = TEXTONS_FULL_SAMPLING;
-uint8_t FULL_SAMPLING = 1;
+uint8_t FULL_SAMPLING = TEXTONS_FULL_SAMPLING;
+//uint8_t FULL_SAMPLING = 1;
 uint32_t border_width = TEXTONS_BORDER_WIDTH;
 uint32_t border_height = TEXTONS_BORDER_HEIGHT;
 uint8_t dictionary_number = TEXTONS_DICTIONARY_NUMBER;
 
 //uint8_t save_img = TEXTONS_SAVE_IMG;
-uint8_t save_img = 1;
+uint8_t save_img = 0;
 static uint16_t img_num = 0;
 
 // status variables

@@ -39,7 +39,8 @@ static abi_event opticflow_ev;
 
 #define VIDEO_CAPTURE_JPEG_QUALITY 99
 
-uint8_t save_histogram = TREXTON_SAVE_HISTOGRAM;
+//uint8_t save_histogram = TREXTON_SAVE_HISTOGRAM;
+uint8_t save_histogram = 0;
 uint8_t stream_video = TREXTON_SEND_VIDEO;
 uint8_t use_color = TREXTON_USE_COLOR;
 uint8_t predict = TREXTON_PREDICT;
@@ -59,6 +60,7 @@ static int use_variance = 0;
 /* Histograms and their paths */
 static char histogram_filename[] = "histograms_flight.csv";
 static char position_filename[] =  "positions.csv";
+//static char position_filename[] =  "sift_rotated.csv";
 static char test_position_filename[] =  "cyberzoo_pos_optitrack.csv";
 static struct measurement all_positions[TREXTON_NUM_HISTOGRAMS];
 static struct measurement all_test_positions[TREXTON_NUM_TEST_HISTOGRAMS];
@@ -153,7 +155,7 @@ struct image_t *trexton_func(struct image_t *img) {
 
    /* Copy histogram */
    int u;
-   for (u = 0; u < 20; u++) {
+   for (u = 0; u < TREXTON_NUM_TEXTONS; u++) {
      texton_dist_copy[u] =  texton_distribution[u];
    }
 
@@ -166,10 +168,10 @@ struct image_t *trexton_func(struct image_t *img) {
    if (save_histogram || trexton_save_img_and_histogram) {
 
      /* Save positions */
-     struct NedCoor_i *ned = stateGetPositionNed_i();
-     fp_pos = fopen("positions.csv", "a");
-     fprintf(fp_pos, "%d,%d,%d\n", ned->x, ned->y, 100);
-     fclose(fp_pos);
+     /* struct NedCoor_i *ned = stateGetPositionNed_i(); */
+     /* fp_pos = fopen("positions.csv", "a"); */
+     /* fprintf(fp_pos, "%d,%d,%d\n", ned->x, ned->y, 100); */
+     /* fclose(fp_pos); */
 
      /* Save histograms */
      fp_hist = fopen("histograms_flight.csv", "a");
@@ -285,6 +287,9 @@ void predict_position(struct measurement pos[], float hist[], int hist_size)
         dist = euclidean_dist_float(hist, regression_histograms[h], hist_size);
 
     struct measurement z;
+
+    //TODO: CHECK IF READ POSITION REALLY WORKS
+
     z.x = all_positions[h].x;
     z.y = all_positions[h].y;
     z.hist_num = h;
@@ -385,7 +390,7 @@ void save_predictions(void) {
 
   /* Best unfiltered prediction */
   fp_predictions = fopen("knn.csv", "a");
-  fprintf(fp_predictions, "%f,%f\n", pos[0].x, pos[0].y);
+  fprintf(fp_predictions, "%f,%f,%f\n", pos[0].x, pos[0].y, pos[0].dist);
   fclose(fp_predictions);
 
   /* /\* Predictions of the nearest neighbors with their distance *\/ */
@@ -464,6 +469,15 @@ if (predict) {
        /* Read x, y, position from SIFT */
        read_positions_from_csv(all_positions, position_filename);
   }
+
+struct measurement mypos; /* Estimates of kNN */
+int i;
+
+for (i = 0; i < TREXTON_NUM_HISTOGRAMS; i++) {
+   mypos = all_positions[i];
+   printf("Raw: %f,%f\n", mypos.x, mypos.y);
+}
+
 
  /* if (evaluate) { */
  /*   read_test_positions_from_csv(all_test_positions, test_position_filename); */

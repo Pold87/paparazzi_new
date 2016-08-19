@@ -11,8 +11,8 @@ Particle filter without control input
 
 #define PI 3.14159265358979323846
 
-#define max_x 640
-#define max_y 480
+#define max_x 1000
+#define max_y 1000
 
 int informed_prior = 0;
 int global_k = 0;
@@ -113,8 +113,10 @@ void particle_filter(struct particle xs[N], struct measurement z[], struct measu
 
   } else {
      //measurement_noise_x = 92;
-    measurement_noise_x = 110;
-    measurement_noise_y = 134;
+     //measurement_noise_x = 110;
+     //measurement_noise_y = 134;
+     measurement_noise_x = 160;
+     measurement_noise_y = 200;
     rho = 0.0;
   }
 
